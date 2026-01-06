@@ -43,8 +43,7 @@ public class MJPEGUdpReceiverNoThread : MonoBehaviour
             {
                 count = 0;
                 byte[] data = udpClient.Receive(ref remoteEP);
-                if (data != null && data.Length > 0)
-                {
+                
                     bool loaded = receivedTexture.LoadImage(data);
                     if (loaded)
                     {
@@ -59,7 +58,7 @@ public class MJPEGUdpReceiverNoThread : MonoBehaviour
                     {
                         Debug.LogWarning("Failed to load JPEG image.");
                     }
-                }
+                
             }
             else {
             	count += 1;
