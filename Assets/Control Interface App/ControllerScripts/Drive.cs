@@ -4,6 +4,8 @@ using ROS2;
 using TMPro;
 using UnityEngine.InputSystem;
 using System.Collections;
+using Newtonsoft.Json.Linq;
+
 
 public class ControllerManager : MonoBehaviour
 {
@@ -44,6 +46,9 @@ public class ControllerManager : MonoBehaviour
 
     private float publishRate = 1f / 30f; // 30 Hz
     private Coroutine inputPublisherCoroutine;
+
+    [SerializeField] private TextAsset driveMessageJson;
+    private JObject driveMessage;
 
     void Awake()
     {
@@ -248,12 +253,16 @@ D-Pad:
         // Publish drive command if there's input, or send stop command once when input stops
         if (driveHasInput || wasDriveActive)
         {
-            string drive_msg = "cmd_vel";
-            drive_msg += ";true"; // + driveHasInput.ToString();
-            drive_msg += ";false";
-            drive_msg += ";" + leftJoy.y * driveSpeedSlider.value;
-            drive_msg += ";" + rightJoy.x * driveSpeedSlider.value * -1;
-            UdpController.inst.PublishControl(drive_msg);
+            
+            driveMessage = JObject.Parse(driveMessageJson.text);
+            driveMessage["topic"] = "cmd_vel";
+            driveMessage["msgType"] = "DriveCommandMessage";
+            driveMessage["data"]["controller_present"] = false;
+            driveMessage["data"]["drive_twist"]["linear"]["x"] = rightJoy.x * driveSpeedSlider.value * -1;
+            driveMessage["data"]["drive_twist"]["linear"]["y"] = leftJoy.y * driveSpeedSlider.value;
+            
+            string msg = driveMessage.ToString();
+            UdpController.inst.PublishMessage(msg);
 
             wasDriveActive = driveHasInput;
         }
@@ -286,7 +295,7 @@ D-Pad:
             pan_tilt_msg += ";" + (buttonNorth - buttonSouth) * 100;
             pan_tilt_msg += ";false";
             pan_tilt_msg += ";false";
-            UdpController.inst.PublishControl(pan_tilt_msg);
+            //UdpController.inst.PublishMessage(pan_tilt_msg);
         }
         std_msgs.msg.UInt8 light_msg = new std_msgs.msg.UInt8();
         if (dpadNorth == 1)

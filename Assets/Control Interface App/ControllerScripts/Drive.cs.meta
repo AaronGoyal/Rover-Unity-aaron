@@ -3,7 +3,15 @@ guid: 620327620bd47f4bfa4c1d2628994094
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - debugTextObject: {instanceID: 0}
+  - driveButton: {instanceID: 0}
+  - armButton: {instanceID: 0}
+  - offButton: {instanceID: 0}
+  - driveSpeedSlider: {instanceID: 0}
+  - armSpeedSlider: {instanceID: 0}
+  - driveMessageJson: {fileID: 4900000, guid: ea8b154b4700aefaa93d93743c56832e, type: 3}
+  - udpController: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

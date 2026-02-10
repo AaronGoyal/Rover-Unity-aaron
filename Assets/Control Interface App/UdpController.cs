@@ -4,47 +4,54 @@ using UnityEngine;
 using System.Net.Sockets;
 using System.Net;
 using System.Text;
-using System.Threading;
+using Newtonsoft.Json.Linq;
+using System;
 
 public class UdpController : MonoBehaviour
 {
-    // Handles low-latency control communication over UDP port 65434 with the udp_control_relay node
-    // This is for control commands only (drive, pan/tilt, joint angles)
-    // Status updates should continue using TcpController
-    
     public static UdpController inst;
-    private UdpClient udpClient;
+    private UdpClient udpClient;           // for sending
+    private UdpClient udpReceiveClient;    // for receiving
     private IPEndPoint serverEndPoint;
+    private IPEndPoint receiveEndPoint;
     private bool isConnected;
     public bool disconnected;
-    
+
     [Header("UDP Configuration")]
     public string serverIP = "127.0.0.1";
-    public int controlPort = 65434;
-    
+    public int UDPSendPort = 65434;
+    public int UDPReceivePort = 65435;
+
     [Header("Connection Status")]
     public bool showDebugLogs = true;
-    
+
+    // Store latest messages per topic
+    private Dictionary<string, JObject> latestMessages = new Dictionary<string, JObject>();
+
     public void Reconnect()
     {
         Start();
     }
-    
+
     void Start()
     {
         inst = this;
-        
+
         try
         {
-            // Create UDP client
+            // Send client
             udpClient = new UdpClient();
-            serverEndPoint = new IPEndPoint(IPAddress.Parse(serverIP), controlPort);
-            
+            serverEndPoint = new IPEndPoint(IPAddress.Parse(serverIP), UDPSendPort);
+
+            // Receive client bound to the receive port
+            udpReceiveClient = new UdpClient(UDPReceivePort);
+            receiveEndPoint = new IPEndPoint(IPAddress.Any, 0);
+
             isConnected = true;
             disconnected = false;
-            
+
             if (showDebugLogs)
-                Debug.Log($"UDP Control Controller initialized for {serverIP}:{controlPort}");
+                Debug.Log($"UDP Control Controller initialized for send:{serverIP}:{UDPSendPort}, receive:{UDPReceivePort}");
         }
         catch (System.Exception e)
         {
@@ -53,12 +60,39 @@ public class UdpController : MonoBehaviour
             isConnected = false;
         }
     }
-    
-    public void PublishControl(string message)
+
+    void Update()
+    {
+        // Continuously check for messages
+        if (udpReceiveClient != null && udpReceiveClient.Available > 0)
+        {
+            try
+            {
+                byte[] data = udpReceiveClient.Receive(ref receiveEndPoint);
+                string jsonString = Encoding.UTF8.GetString(data);
+                JObject message = JObject.Parse(jsonString);
+
+                // Update latest messages dictionary
+                string topic = message["topic"]?.ToString();
+                if (!string.IsNullOrEmpty(topic))
+                {
+                    latestMessages[topic] = message;
+                    if (showDebugLogs)
+                        Debug.Log($"Updated latest message for topic: {topic}");
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Failed to receive or parse UDP message: {e.Message}");
+            }
+        }
+    }
+
+    public void PublishMessage(string message)
     {
         if (showDebugLogs)
-            Debug.Log($"Sending UDP Control: {message}");
-            
+            Debug.Log($"Sending UDP Message: {message}");
+
         if (!isConnected || udpClient == null)
         {
             Debug.LogWarning("UDP connection is not established. Attempting reconnect.");
@@ -69,15 +103,12 @@ public class UdpController : MonoBehaviour
                 return;
             }
         }
-        
+
         try
         {
-            // Convert message to bytes
             byte[] dataToSend = Encoding.UTF8.GetBytes(message);
-            
-            // Send the message via UDP
             udpClient.Send(dataToSend, dataToSend.Length, serverEndPoint);
-            
+
             disconnected = false;
         }
         catch (System.Exception e)
@@ -88,80 +119,35 @@ public class UdpController : MonoBehaviour
         }
     }
 
-    public void SendDriveCommand(bool controllerPresent, bool ignoreDriveControl, float linearX, float angularZ)
+    // Get the latest message for a topic
+    public JObject GetLatestMessage(string topic)
     {
-        string message = $"command_control/ground_station_drive;{controllerPresent};{ignoreDriveControl};{linearX:F3};{angularZ:F3}";
-        PublishControl(message);
-    }
-    
-   
-    public void SendPanTiltCommand(string topicName, bool shouldCenter, int panAdjustment, int tiltAdjustment, bool hitchServoPositive = false, bool hitchServoNegative = false)
-    {
-        string message = $"{topicName};{shouldCenter};{panAdjustment};{tiltAdjustment};{hitchServoPositive};{hitchServoNegative}";
-        PublishControl(message);
-    }
-    
-  
-    public void SendChassisPanTilt(bool shouldCenter, int panAdjustment, int tiltAdjustment, bool hitchServoPositive = false, bool hitchServoNegative = false)
-    {
-        SendPanTiltCommand("chassis/pan_tilt/control", shouldCenter, panAdjustment, tiltAdjustment, hitchServoPositive, hitchServoNegative);
+        latestMessages.TryGetValue(topic, out JObject msg);
+        return msg;
     }
 
-    public void SendTowerPanTilt(bool shouldCenter, int panAdjustment, int tiltAdjustment, bool hitchServoPositive = false, bool hitchServoNegative = false)
-    {
-        SendPanTiltCommand("tower/pan_tilt/control", shouldCenter, panAdjustment, tiltAdjustment, hitchServoPositive, hitchServoNegative);
-    }
-    
-
-    public void SendJointAngles(float[] angles)
-    {
-        if (angles.Length != 6)
-        {
-            Debug.LogError("Joint angles array must contain exactly 6 values");
-            return;
-        }
-        
-        string message = $"set_joint_angles;{angles[0]:F3};{angles[1]:F3};{angles[2]:F3};{angles[3]:F3};{angles[4]:F3};{angles[5]:F3}";
-        PublishControl(message);
-    }
-    
-    public void SendJoy2Command()
-    {
-        string message = "joy2;";
-        PublishControl(message);
-    }
-    
-    public void SendControlCommand(string topic, params string[] parameters)
-    {
-        string message = topic + ";" + string.Join(";", parameters);
-        PublishControl(message);
-    }
-    
     void OnDestroy()
     {
-        // Cleanup
         isConnected = false;
-        
+
         if (udpClient != null)
         {
-            try
-            {
-                udpClient.Close();
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogWarning($"Error closing UDP client: {e.Message}");
-            }
+            try { udpClient.Close(); } catch (Exception e) { Debug.LogWarning($"Error closing UDP client: {e.Message}"); }
             udpClient = null;
         }
-        
+
+        if (udpReceiveClient != null)
+        {
+            try { udpReceiveClient.Close(); } catch (Exception e) { Debug.LogWarning($"Error closing UDP receive client: {e.Message}"); }
+            udpReceiveClient = null;
+        }
+
         if (showDebugLogs)
             Debug.Log("UDP Control Controller closed.");
     }
-    
+
     void OnApplicationPause(bool pauseStatus)
     {
-        // Handle application pause/resume
         if (pauseStatus)
         {
             isConnected = false;
