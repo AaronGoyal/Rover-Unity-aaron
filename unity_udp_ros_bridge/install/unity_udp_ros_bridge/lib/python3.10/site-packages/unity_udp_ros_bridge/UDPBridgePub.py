@@ -37,6 +37,19 @@ class UDPBridgePub(Node):
                 attr = getattr(msg_obj, key)
                 if hasattr(attr, '__slots__') and isinstance(value, dict):
                     self.set_fields_from_dict(attr, value)
+                elif isinstance(attr, list):
+                    # Detect if elements are float or int
+                    if all(isinstance(x, (int, float)) for x in value):
+                        # Convert numeric types appropriately
+                        if all(isinstance(x, float) or isinstance(x, int) for x in value):
+                            if all(isinstance(x, float) for x in value):
+                                setattr(msg_obj, key, [float(x) for x in value])
+                            else:
+                                setattr(msg_obj, key, [int(x) for x in value])
+                        else:
+                            setattr(msg_obj, key, value)  # fallback
+                    else:
+                        setattr(msg_obj, key, value)
                 else:
                     field_type = type(attr)
                     setattr(msg_obj, key, field_type(value))
@@ -48,10 +61,9 @@ class UDPBridgePub(Node):
         """Handle incoming UDP messages as JSON"""
         try:
             message = data.decode('utf-8').strip()
-
+            print(message)
             # Parse JSON
             payload = json.loads(message)
-            print(payload)
             # Expect keys: "topic" and "msgType", "data"
             topic_name = payload.get("topic")
             messageType = payload.get("msgType")

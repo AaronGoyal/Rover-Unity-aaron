@@ -6,21 +6,45 @@ using System.Net;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using System;
+using UnityEditor.VersionControl;
+using Cysharp.Threading.Tasks;
 
 public class UdpController : MonoBehaviour
 {
     public static UdpController inst;
     private UdpClient udpClient;           // for sending
     private UdpClient udpReceiveClient;    // for receiving
+    private UdpClient configClient;
+
+    private UdpClient srvClient;
+    private UdpClient srvServer;
+
+    
     private IPEndPoint serverEndPoint;
     private IPEndPoint receiveEndPoint;
+
+    private IPEndPoint configEndPoint;
+
+    private IPEndPoint srvEndPoint;
+
+    private IPEndPoint srvServerPoint;
+
+
     private bool isConnected;
     public bool disconnected;
 
     [Header("UDP Configuration")]
     public string serverIP = "127.0.0.1";
-    public int UDPSendPort = 65434;
-    public int UDPReceivePort = 65435;
+    private int UDPSendPort = 65434;
+    private int UDPReceivePort = 65435;
+
+    private int UDPConfigPort = 65436;
+
+    private int UDPConfigClientReq = 65437;
+
+    private int UDPServerPort = 65438;
+
+    
 
     [Header("Connection Status")]
     public bool showDebugLogs = true;
@@ -39,27 +63,40 @@ public class UdpController : MonoBehaviour
 
         try
         {
-            // Send client
+            // Main send client
             udpClient = new UdpClient();
             serverEndPoint = new IPEndPoint(IPAddress.Parse(serverIP), UDPSendPort);
 
-            // Receive client bound to the receive port
+            // Receive client
             udpReceiveClient = new UdpClient(UDPReceivePort);
             receiveEndPoint = new IPEndPoint(IPAddress.Any, 0);
+
+            // Config client
+            configClient = new UdpClient();
+            configEndPoint = new IPEndPoint(IPAddress.Parse(serverIP), UDPConfigPort);
+
+            srvClient = new UdpClient();
+            srvEndPoint = new IPEndPoint(IPAddress.Parse(serverIP), UDPConfigClientReq);
+
+            srvServer = new UdpClient(UDPServerPort);
+            srvServerPoint = new IPEndPoint(IPAddress.Any, 0);
 
             isConnected = true;
             disconnected = false;
 
             if (showDebugLogs)
-                Debug.Log($"UDP Control Controller initialized for send:{serverIP}:{UDPSendPort}, receive:{UDPReceivePort}");
+                Debug.Log($"UDP Controller initialized: send:{serverIP}:{UDPSendPort}, receive:{UDPReceivePort}, client:{UDPConfigPort}");
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"Could not initialize UDP Control Controller: {e.Message}");
+            Debug.LogError($"Could not initialize UDP Controller: {e.Message}");
             disconnected = true;
             isConnected = false;
         }
     }
+
+
+
 
     void Update()
     {
@@ -76,6 +113,7 @@ public class UdpController : MonoBehaviour
                 string topic = message["topic"]?.ToString();
                 if (!string.IsNullOrEmpty(topic))
                 {
+
                     latestMessages[topic] = message;
                     if (showDebugLogs)
                         Debug.Log($"Updated latest message for topic: {topic}");
@@ -87,6 +125,70 @@ public class UdpController : MonoBehaviour
             }
         }
     }
+
+
+    async UniTask<JObject> checkService(int maxAttempts = 50, float delayBetweenAttempts = 100)
+    {
+        for (int i = 0; i < maxAttempts; i++)
+        {
+            try
+            {
+                if (srvServer != null)
+                {
+                    UdpReceiveResult result = await srvServer.ReceiveAsync().AsUniTask();
+                    string jsonString = Encoding.UTF8.GetString(result.Buffer);
+                    JObject message = JObject.Parse(jsonString);
+
+                    Debug.Log($"Received from {result.RemoteEndPoint.Address}:{result.RemoteEndPoint.Port}: {jsonString}");
+                    return message;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Failed to receive or parse UDP message: {e.Message}");
+            }
+
+            await UniTask.Delay(TimeSpan.FromSeconds(delayBetweenAttempts));
+        }
+
+        Debug.LogWarning("checkServiceAsync timed out: no message received");
+        return new JObject();
+    }
+
+
+    public void ConfigureSubscription(string topic, string msgType)
+    {
+        string message = topic + ";" + msgType;
+        if (showDebugLogs)
+            Debug.Log($"Sending config UDP Message: {message}");
+
+        if (!isConnected || configClient == null)
+        {
+            Debug.LogWarning("UDP config connection is not established. Attempting reconnect.");
+            Start();
+            if (!isConnected || configClient == null)
+            {
+                Debug.LogWarning("UDP config reconnect failed. Canceling publish.");
+                return;
+            }
+        }
+
+        try
+        {
+            byte[] dataToSend = Encoding.UTF8.GetBytes(message);
+            configClient.Send(dataToSend, dataToSend.Length, configEndPoint);
+
+            disconnected = false;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"Error while sending UDP config data: {e.Message}");
+            disconnected = true;
+            isConnected = false;
+        }
+    }
+
+
 
     public void PublishMessage(string message)
     {
@@ -101,7 +203,7 @@ public class UdpController : MonoBehaviour
             {
                 Debug.LogWarning("UDP reconnect failed. Canceling publish.");
                 return;
-            }
+            } 
         }
 
         try
@@ -118,6 +220,42 @@ public class UdpController : MonoBehaviour
             isConnected = false;
         }
     }
+
+    public async UniTask<JObject> PublishClientReq(string message)
+    {
+        if (showDebugLogs)
+        Debug.Log($"Sending UDP Client Req: {message}");
+        JObject SrvReturn = new JObject();
+
+        if (!isConnected || udpClient == null)
+        {
+            Debug.LogWarning("UDP connection is not established. Attempting reconnect.");
+            Start();
+            if (!isConnected || udpClient == null)
+            {
+                Debug.LogWarning("UDP reconnect failed. Canceling publish.");
+                return SrvReturn;
+            }
+        }
+
+        try
+        {
+            byte[] dataToSend = Encoding.UTF8.GetBytes(message);
+            udpClient.Send(dataToSend, dataToSend.Length, srvEndPoint);
+
+            disconnected = false;
+            SrvReturn = await checkService();
+            return SrvReturn;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"Error while sending UDP client req: {e.Message}");
+            disconnected = true;
+            isConnected = false;
+            return SrvReturn;
+        }
+    }
+    
 
     // Get the latest message for a topic
     public JObject GetLatestMessage(string topic)

@@ -1,0 +1,26 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/MultiEchoLaserScan",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "angle_min": 0.0,
+        "angle_max": 0.0,
+        "angle_increment": 0.0,
+        "time_increment": 0.0,
+        "scan_time": 0.0,
+        "range_min": 0.0,
+        "range_max": 0.0,
+        "ranges": {
+            "echoes": []
+        },
+        "intensities": {
+            "echoes": []
+        }
+    }
+}

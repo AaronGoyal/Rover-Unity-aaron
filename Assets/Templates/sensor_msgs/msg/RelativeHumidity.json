@@ -1,0 +1,15 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/RelativeHumidity",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "relative_humidity": 0.0,
+        "variance": 0.0
+    }
+}

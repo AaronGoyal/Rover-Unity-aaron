@@ -1,0 +1,18 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/TimeReference",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "time_ref": {
+            "sec": 0,
+            "nanosec": 0
+        },
+        "source": ""
+    }
+}

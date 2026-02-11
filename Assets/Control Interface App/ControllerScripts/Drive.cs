@@ -48,7 +48,17 @@ public class ControllerManager : MonoBehaviour
     private Coroutine inputPublisherCoroutine;
 
     [SerializeField] private TextAsset driveMessageJson;
+
+    [SerializeField] private TextAsset tiltMessageJson;
+
+    [SerializeField] private TextAsset joyMessageJson;
+
+
     private JObject driveMessage;
+
+    private JObject tiltMessage;
+
+    private JObject joyMessage;
 
     void Awake()
     {
@@ -256,11 +266,9 @@ D-Pad:
             
             driveMessage = JObject.Parse(driveMessageJson.text);
             driveMessage["topic"] = "cmd_vel";
-            driveMessage["msgType"] = "DriveCommandMessage";
             driveMessage["data"]["controller_present"] = false;
             driveMessage["data"]["drive_twist"]["linear"]["x"] = rightJoy.x * driveSpeedSlider.value * -1;
             driveMessage["data"]["drive_twist"]["linear"]["y"] = leftJoy.y * driveSpeedSlider.value;
-            
             string msg = driveMessage.ToString();
             UdpController.inst.PublishMessage(msg);
 
@@ -289,13 +297,15 @@ D-Pad:
         {
             string panTiltPrefix = useChassisPanTilt ? "chassis/pan_tilt/control" : "tower/pan_tilt/control";
 
-            string pan_tilt_msg = panTiltPrefix;
-            pan_tilt_msg += ";" + (start == 1);
-            pan_tilt_msg += ";" + ((buttonWest - buttonEast) + (shoulderWest - shoulderEast)) * 100;
-            pan_tilt_msg += ";" + (buttonNorth - buttonSouth) * 100;
-            pan_tilt_msg += ";false";
-            pan_tilt_msg += ";false";
-            //UdpController.inst.PublishMessage(pan_tilt_msg);
+            tiltMessage = JObject.Parse(tiltMessageJson.text);
+            tiltMessage["topic"] = panTiltPrefix;
+            tiltMessage["data"]["should_center"] = start==1;
+            tiltMessage["data"]["relative_pan_adjustment"] = ((buttonWest - buttonEast) + (shoulderWest - shoulderEast)) * 100;
+            tiltMessage["data"]["relative_tilt_adjustment"] = (buttonNorth - buttonSouth) * 100;
+
+            string msg = tiltMessage.ToString();
+            UdpController.inst.PublishMessage(msg);
+            
         }
         std_msgs.msg.UInt8 light_msg = new std_msgs.msg.UInt8();
         if (dpadNorth == 1)
@@ -360,11 +370,14 @@ D-Pad:
             };
 
 
+            joyMessage = JObject.Parse(joyMessageJson.text);
+            joyMessage["topic"] = "joy";
+            joyMessage["data"]["axes"] = new JArray(axes);
+            joyMessage["data"]["buttons"] = new JArray(buttons);
+
+            string msg = joyMessage.ToString();
+            UdpController.inst.PublishMessage(msg);
             
-            sensor_msgs.msg.Joy msg = new sensor_msgs.msg.Joy();
-            msg.Axes = axes;
-            msg.Buttons = buttons;
-            joy_pub.Publish(msg);
         }
     }
 

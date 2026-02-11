@@ -1,0 +1,34 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/PointCloud2",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "height": 0,
+        "width": 0,
+        "fields": {
+            "INT8": 0,
+            "UINT8": 0,
+            "INT16": 0,
+            "UINT16": 0,
+            "INT32": 0,
+            "UINT32": 0,
+            "FLOAT32": 0,
+            "FLOAT64": 0,
+            "name": "",
+            "offset": 0,
+            "datatype": 0,
+            "count": 0
+        },
+        "is_bigendian": false,
+        "point_step": 0,
+        "row_step": 0,
+        "data": [],
+        "is_dense": false
+    }
+}

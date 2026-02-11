@@ -6,6 +6,7 @@ from threading import Thread
 from std_msgs.msg import String
 from rosidl_runtime_py.utilities import get_message
 import json
+import array
 
 class UDPBridgePub(Node):
     """ROS2 Node using JSON over UDP"""
@@ -37,6 +38,11 @@ class UDPBridgePub(Node):
                 attr = getattr(msg_obj, key)
                 if hasattr(attr, '__slots__') and isinstance(value, dict):
                     self.set_fields_from_dict(attr, value)
+                # array.array field
+                elif isinstance(attr, array.array):
+                    typecode = attr.typecode  # 'f' for float, 'i' for int, etc.
+                    setattr(msg_obj, key, array.array(typecode, value))
+
                 else:
                     field_type = type(attr)
                     setattr(msg_obj, key, field_type(value))
@@ -48,10 +54,9 @@ class UDPBridgePub(Node):
         """Handle incoming UDP messages as JSON"""
         try:
             message = data.decode('utf-8').strip()
-
+            print(message)
             # Parse JSON
             payload = json.loads(message)
-            print(payload)
             # Expect keys: "topic" and "msgType", "data"
             topic_name = payload.get("topic")
             messageType = payload.get("msgType")
@@ -76,7 +81,6 @@ class UDPBridgePub(Node):
             # Create new message instance
             ros2_msg = msg_class()
             self.set_fields_from_dict(ros2_msg, data_dict)
-
             # Publish the message
             self.publisher_dict[topic_name].publish(ros2_msg)
             self.get_logger().info(f"Published message on {topic_name}")
