@@ -51,6 +51,9 @@ public class UdpController : MonoBehaviour
 
     // Store latest messages per topic
     private Dictionary<string, JObject> latestMessages = new Dictionary<string, JObject>();
+    
+    // Store latest service responses per service key
+    private Dictionary<string, JObject> latestServiceResponses = new Dictionary<string, JObject>();
 
     public void Reconnect()
     {
@@ -100,7 +103,7 @@ public class UdpController : MonoBehaviour
 
     void Update()
     {
-        // Continuously check for messages
+        // Continuously check for topic messages
         if (udpReceiveClient != null && udpReceiveClient.Available > 0)
         {
             try
@@ -113,7 +116,6 @@ public class UdpController : MonoBehaviour
                 string topic = message["topic"]?.ToString();
                 if (!string.IsNullOrEmpty(topic))
                 {
-
                     latestMessages[topic] = message;
                     if (showDebugLogs)
                         Debug.Log($"Updated latest message for topic: {topic}");
@@ -124,34 +126,55 @@ public class UdpController : MonoBehaviour
                 Debug.LogWarning($"Failed to receive or parse UDP message: {e.Message}");
             }
         }
-    }
-
-
-    async UniTask<JObject> checkService(int maxAttempts = 50, float delayBetweenAttempts = 100)
-    {
-        for (int i = 0; i < maxAttempts; i++)
+        
+        // Continuously check for service response messages
+        if (srvServer != null && srvServer.Available > 0)
         {
             try
             {
-                if (srvServer != null)
-                {
-                    UdpReceiveResult result = await srvServer.ReceiveAsync().AsUniTask();
-                    string jsonString = Encoding.UTF8.GetString(result.Buffer);
-                    JObject message = JObject.Parse(jsonString);
+                byte[] data = srvServer.Receive(ref srvServerPoint);
+                string jsonString = Encoding.UTF8.GetString(data);
+                JObject message = JObject.Parse(jsonString);
 
-                    Debug.Log($"Received from {result.RemoteEndPoint.Address}:{result.RemoteEndPoint.Port}: {jsonString}");
-                    return message;
+                // Update latest service responses dictionary
+                string serviceKey = message["service"]?.ToString();
+                
+                if (!string.IsNullOrEmpty(serviceKey))
+                {
+                    latestServiceResponses[serviceKey] = message;
+                    if (showDebugLogs)
+                        Debug.Log($"Updated service response for key: {serviceKey}");
                 }
             }
             catch (Exception e)
             {
-                Debug.LogWarning($"Failed to receive or parse UDP message: {e.Message}");
+                Debug.LogWarning($"Failed to receive or parse service UDP message: {e.Message}");
+            }
+        }
+    }
+
+
+    // Wait for a service response with a specific key
+    public async UniTask<JObject> WaitForServiceResponse(string serviceKey, int maxAttempts = 50, float delayBetweenAttempts = 0.1f)
+    {
+        for (int i = 0; i < maxAttempts; i++)
+        {
+            // Check if the response has been received
+            if (latestServiceResponses.TryGetValue(serviceKey, out JObject response))
+            {
+                // Remove from dictionary after reading (optional, depending on your use case)
+                latestServiceResponses.Remove(serviceKey);
+                
+                if (showDebugLogs)
+                    Debug.Log($"Service response found for key: {serviceKey}");
+                
+                return response;
             }
 
             await UniTask.Delay(TimeSpan.FromSeconds(delayBetweenAttempts));
         }
 
-        Debug.LogWarning("checkServiceAsync timed out: no message received");
+        Debug.LogWarning($"WaitForServiceResponse timed out for key: {serviceKey}");
         return new JObject();
     }
 
@@ -221,17 +244,18 @@ public class UdpController : MonoBehaviour
         }
     }
 
-    public async UniTask<JObject> PublishClientReq(string message)
+    public async UniTask<JObject> PublishClientReq(string message, string serviceKey = null)
     {
         if (showDebugLogs)
-        Debug.Log($"Sending UDP Client Req: {message}");
+            Debug.Log($"Sending UDP Client Req: {message}");
+        
         JObject SrvReturn = new JObject();
 
-        if (!isConnected || udpClient == null)
+        if (!isConnected || srvClient == null)
         {
             Debug.LogWarning("UDP connection is not established. Attempting reconnect.");
             Start();
-            if (!isConnected || udpClient == null)
+            if (!isConnected || srvClient == null)
             {
                 Debug.LogWarning("UDP reconnect failed. Canceling publish.");
                 return SrvReturn;
@@ -240,11 +264,27 @@ public class UdpController : MonoBehaviour
 
         try
         {
+            // If no service key provided, try to extract from message or generate one
+            if (string.IsNullOrEmpty(serviceKey))
+            {
+                try
+                {
+                    JObject msgObj = JObject.Parse(message);
+                    serviceKey = msgObj["service"]?.ToString() ?? msgObj["request_id"]?.ToString() ?? Guid.NewGuid().ToString();
+                }
+                catch
+                {
+                    serviceKey = Guid.NewGuid().ToString();
+                }
+            }
+
             byte[] dataToSend = Encoding.UTF8.GetBytes(message);
-            udpClient.Send(dataToSend, dataToSend.Length, srvEndPoint);
+            srvClient.Send(dataToSend, dataToSend.Length, srvEndPoint);
 
             disconnected = false;
-            SrvReturn = await checkService();
+            
+            // Wait for the response using the new dictionary-based approach
+            SrvReturn = await WaitForServiceResponse(serviceKey);
             return SrvReturn;
         }
         catch (System.Exception e)
@@ -263,6 +303,13 @@ public class UdpController : MonoBehaviour
         latestMessages.TryGetValue(topic, out JObject msg);
         return msg;
     }
+    
+    // Get the latest service response (without removing it)
+    public JObject GetLatestServiceResponse(string serviceKey)
+    {
+        latestServiceResponses.TryGetValue(serviceKey, out JObject msg);
+        return msg;
+    }
 
     void OnDestroy()
     {
@@ -278,6 +325,18 @@ public class UdpController : MonoBehaviour
         {
             try { udpReceiveClient.Close(); } catch (Exception e) { Debug.LogWarning($"Error closing UDP receive client: {e.Message}"); }
             udpReceiveClient = null;
+        }
+        
+        if (srvClient != null)
+        {
+            try { srvClient.Close(); } catch (Exception e) { Debug.LogWarning($"Error closing service client: {e.Message}"); }
+            srvClient = null;
+        }
+        
+        if (srvServer != null)
+        {
+            try { srvServer.Close(); } catch (Exception e) { Debug.LogWarning($"Error closing service server: {e.Message}"); }
+            srvServer = null;
         }
 
         if (showDebugLogs)

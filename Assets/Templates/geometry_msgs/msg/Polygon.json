@@ -1,0 +1,11 @@
+{
+    "topic": "",
+    "msgType": "geometry_msgs/msg/Polygon",
+    "data": {
+        "points": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        }
+    }
+}

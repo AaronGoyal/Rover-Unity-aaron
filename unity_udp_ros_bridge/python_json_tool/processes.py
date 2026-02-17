@@ -153,6 +153,32 @@ class Processes:
 
         return request_data, response_data
 
+    def parse_action_structure(self, lines):
+        
+        if '---' not in lines:
+            return {}, {}, {}
+        
+        separators = []
+        for i, line in enumerate(lines):
+            if line.strip() == '---':
+                separators.append(i)
+        
+        if len(separators) < 2:
+            return {}, {}, {}
+        
+        first_separator = separators[0]
+        second_separator = separators[1]
+        
+        goal_lines = lines[:first_separator]
+        result_lines = lines[first_separator + 1:second_separator]
+        feedback_lines = lines[second_separator + 1:]
+        
+        goal_msg, _ = self.parse_message_structure(goal_lines)
+        result_msg, _ = self.parse_message_structure(result_lines)
+        feedback_msg, _ = self.parse_message_structure(feedback_lines)
+        
+        return goal_msg, result_msg, feedback_msg
+
 
 
 
@@ -212,6 +238,43 @@ class Processes:
             write_directory.mkdir(parents=True, exist_ok=True)
 
             file_name = write_directory / f"{srv.split('/')[2]}.json"
+
+            with open(file_name, "w") as json_file:
+                json.dump(ros_json, json_file, indent=4)
+
+            print(json.dumps(ros_json, indent=4))
+
+        for act in self.action_dict:
+            if not self.action_libs[act.split("/")[0]]:
+                continue
+
+            output = run(
+                ["ros2", "interface", "show", act],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+
+            lines = output.stdout.strip().split("\n")
+
+            goal_msg, result_msg, feedback_msg = self.parse_action_structure(lines)
+
+            ros_json = {
+                "action": "",
+                "actionType": srv,
+                "goal": goal_msg,
+                "result": result_msg,
+                "feedback": feedback_msg
+            }
+
+            write_directory = (
+                Path(save_dir) /
+                act.split("/")[0] /
+                act.split("/")[1]
+            )
+            write_directory.mkdir(parents=True, exist_ok=True)
+
+            file_name = write_directory / f"{act.split('/')[2]}.json"
 
             with open(file_name, "w") as json_file:
                 json.dump(ros_json, json_file, indent=4)
