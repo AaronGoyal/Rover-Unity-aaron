@@ -266,8 +266,8 @@ D-Pad:
             
             driveMessage = JObject.Parse(driveMessageJson.text);
             driveMessage["topic"] = "cmd_vel";
-            driveMessage["data"]["linear"]["x"] = rightJoy.x * driveSpeedSlider.value * -1;
-            driveMessage["data"]["linear"]["y"] = leftJoy.y * driveSpeedSlider.value;
+            driveMessage["data"]["angular"]["z"] = rightJoy.x * driveSpeedSlider.value * -1;
+            driveMessage["data"]["linear"]["x"] = leftJoy.y * driveSpeedSlider.value;
             string msg = driveMessage.ToString();
             UdpController.inst.PublishMessage(msg);
 

@@ -104,7 +104,7 @@ public class UdpController : MonoBehaviour
     void Update()
     {
         // Continuously check for topic messages
-        if (udpReceiveClient != null && udpReceiveClient.Available > 0)
+        while (udpReceiveClient != null && udpReceiveClient.Available > 0)
         {
             try
             {
@@ -118,7 +118,11 @@ public class UdpController : MonoBehaviour
                 {
                     latestMessages[topic] = message;
                     if (showDebugLogs)
+                    {
                         Debug.Log($"Updated latest message for topic: {topic}");
+                        Debug.Log($"UdpController instance ID: {GetInstanceID()}");
+
+                    }
                 }
             }
             catch (Exception e)
@@ -128,7 +132,7 @@ public class UdpController : MonoBehaviour
         }
         
         // Continuously check for service response messages
-        if (srvServer != null && srvServer.Available > 0)
+        while (srvServer != null && srvServer.Available > 0)
         {
             try
             {
@@ -301,6 +305,7 @@ public class UdpController : MonoBehaviour
     public JObject GetLatestMessage(string topic)
     {
         latestMessages.TryGetValue(topic, out JObject msg);
+        
         return msg;
     }
     

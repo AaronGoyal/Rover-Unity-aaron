@@ -1,7 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 using System;
-
+using Newtonsoft.Json.Linq;
+using Unity.VisualScripting;
 
 public class RobotArmController : MonoBehaviour
 {
@@ -17,30 +19,87 @@ public class RobotArmController : MonoBehaviour
 
     public GameObject rover_arm_vis;
 
+    
     void Start()
     {
         inst = this;
+        StartCoroutine(joint_state_subscription());        
+        UdpController.inst.ConfigureSubscription("joint_states","sensor_msgs/msg/JointState");
+        Debug.Log("Starting joint controller");
+
     }
  
+
+    IEnumerator joint_state_subscription()
+    {
+        while (true)
+        {
+            JObject jointMessage = UdpController.inst.GetLatestMessage("joint_states");
+            if(jointMessage != null)
+            {
+                if (joints == null || joints.Length < 6)
+                {
+                    Debug.LogError("[RobotArmController] Joints array not set or incomplete!");
+                    yield break;
+                }
+                JArray positions = (JArray)jointMessage["data"]["position"];
+                // Map each joint
+                // Multiply by multiplier, convert rad → deg, add offset
+                joints[0].localRotation = Quaternion.Euler(
+                    0,
+                    positions[0].Value<float>() * Mathf.Rad2Deg * multipliers[0] + offsets[0],
+                    0
+                );
+
+                joints[1].localRotation = Quaternion.Euler(
+                    0,
+                    0,
+                    positions[1].Value<float>() * Mathf.Rad2Deg * multipliers[1] + offsets[1]
+                );
+
+                joints[2].localRotation = Quaternion.Euler(
+                    0,
+                    positions[2].Value<float>() * Mathf.Rad2Deg * multipliers[2] + offsets[2],
+                    0
+                );
+
+                joints[3].localRotation = Quaternion.Euler(
+                    0,
+                    0,
+                    positions[3].Value<float>() * Mathf.Rad2Deg * multipliers[3] + offsets[3]
+                );
+
+                joints[4].localRotation = Quaternion.Euler(
+                    0,
+                    0,
+                    positions[4].Value<float>() * Mathf.Rad2Deg * multipliers[4] + offsets[4]
+                );
+
+                joints[5].localRotation = Quaternion.Euler(
+                    0,
+                    positions[5].Value<float>() * Mathf.Rad2Deg * multipliers[5] + offsets[5],
+                    0
+                );
+
+                // Update trueAngles array in radians
+                trueAngles[0] = positions[0].Value<float>();
+                trueAngles[1] = positions[1].Value<float>();
+                trueAngles[2] = positions[2].Value<float>();
+                trueAngles[3] = positions[3].Value<float>();
+                trueAngles[4] = positions[4].Value<float>();
+                trueAngles[5] = positions[5].Value<float>();
+
+            }
+            yield return new WaitForSeconds(0.03f);
+        }
+    }
     public void Receive(string message){
         if(message.Contains("nan")) return;
 
         var parts = message.Split(";");
 
         try {
-            joints[0].localRotation = Quaternion.Euler(0, float.Parse(parts[1]) * 57.2958f * multipliers[0] + offsets[0], 0);
-            joints[1].localRotation = Quaternion.Euler(0, 0, float.Parse(parts[2]) * 57.2958f * multipliers[1] + offsets[1]);
-            joints[2].localRotation = Quaternion.Euler(0, float.Parse(parts[3]) * 57.2958f * multipliers[2] + offsets[2], 0);
-            joints[3].localRotation = Quaternion.Euler(0, 0, float.Parse(parts[4]) * 57.2958f * multipliers[3] + offsets[3]);
-            joints[4].localRotation = Quaternion.Euler(0, 0, float.Parse(parts[5]) * 57.2958f * multipliers[4] + offsets[4]);
-            joints[5].localRotation = Quaternion.Euler(0, float.Parse(parts[6]) * 57.2958f * multipliers[5] + offsets[5], 0);
 
-            trueAngles[0] = float.Parse(parts[1]);
-            trueAngles[1] = float.Parse(parts[2]);
-            trueAngles[3] = float.Parse(parts[3]);
-            trueAngles[2] = float.Parse(parts[4]);
-            trueAngles[4] = float.Parse(parts[5]);
-            trueAngles[5] = float.Parse(parts[6]);
 
         }
         catch (Exception e){

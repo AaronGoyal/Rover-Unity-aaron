@@ -20,7 +20,7 @@ public class TestSender : MonoBehaviour
         testService["service"]="test_srv";
         testService["request"]["data"]=true;
         string msg = testService.ToString();
-        response = await UdpController.inst.PublishClientReq(msg);
+        //response = await UdpController.inst.PublishClientReq(msg);
 
 
     }

@@ -4,7 +4,8 @@ from rover2_control_interface.msg import DriveCommandMessage
 from rosidl_runtime_py.utilities import get_message
 from unity_udp_ros_bridge.UDPServer import UDPServer
 from threading import Thread
-
+from time import time
+import array
 import json
 import socket
 import copy
@@ -16,10 +17,8 @@ class UDPBridgeSub(Node):
         super().__init__('udp_bridge_sub')
 
         self.subscription_dict = {}
-
-
-
-
+        self.msg_type_cache = {}
+        self.last_publish_times = {}  # Track last publish time per topic
 
         self.udp_server = UDPServer('127.0.0.1', 65436, logger=self.get_logger())
 
@@ -29,23 +28,23 @@ class UDPBridgeSub(Node):
         self.udp_thread.start()
 
         self.get_logger().info("UDPBridgeSub node initialized.")
-        self.msg_type_cache = {}
+
+        # Maximum publish rate per topic (Hz)
+        self.max_publish_rate_hz = 30.0
+        self.min_publish_interval = 1.0 / self.max_publish_rate_hz
 
     def set_dict_from_fields(self, msg):
         """Recursively convert ROS message to a JSON-serializable dictionary"""
-        # Case 1: List or tuple of items (e.g., arrays)
+        if isinstance(msg, array.array):
+            return list(msg)
         if isinstance(msg, (list, tuple)):
             return [self.set_dict_from_fields(x) for x in msg]
-
-        # Case 2: ROS message object (has _get_fields_and_field_types)
         elif hasattr(msg, 'get_fields_and_field_types'):
             d = {}
             for field in msg.get_fields_and_field_types().keys():
                 value = getattr(msg, field)
                 d[field] = self.set_dict_from_fields(value)
             return d
-
-        # Case 3: Primitive types (float, int, str, bool, etc.)
         else:
             return msg
 
@@ -65,53 +64,54 @@ class UDPBridgeSub(Node):
         """Handle incoming UDP messages to configure subscription"""
         try:
             message = data.decode('utf-8').strip()
-            print(message)
-            print(type(message))
             payload = message.split(";")
-            # Parse JSON
-            # Expect keys: "topic" and "msgType", "data"
             topic_name = payload[0]
             messageType = payload[1]
-          
-            if topic_name is None or messageType is None:
+
+            if not topic_name or not messageType:
                 self.get_logger().error("Package missing required keys 'topic' or 'msgType'")
                 return
-            # Get message class dynamically
+
             if messageType not in self.msg_type_cache:
                 self.msg_type_cache[messageType] = get_message(messageType)
                 self.get_logger().info(f"Created subscriber for {topic_name} with type {messageType}")
 
-
             msg_class = self.msg_type_cache[messageType]
 
+            # Create subscriber
             self.create_subscription(
                 msg_class,
                 topic_name,
-                self.make_callback(topic_name,messageType),
+                self.make_callback(topic_name, messageType),
                 10
             )
 
+            # Initialize last publish time for this topic
+            if topic_name not in self.last_publish_times:
+                self.last_publish_times[topic_name] = 0.0
 
-
-        except json.JSONDecodeError as e:
-            self.get_logger().error(f"Failed to parse JSON: {e}")
         except Exception as e:
             self.get_logger().error(f"Failed to process UDP message: {e}")
-
 
     def make_callback(self, topic_name, msgType):
         def callback(msg):
             self.process_subscription(msg, topic_name, msgType)
         return callback
 
-
     def process_subscription(self, msg, topic_name, msgType):
-        payload = {}
-        payload["topic"] = topic_name
-        payload["msgType"] = msgType
-        payload["data"] = self.set_dict_from_fields(msg)
+        current_time = time()
+        last_time = self.last_publish_times.get(topic_name, 0.0)
 
-        self.send_udp_message(payload)
+        # Check rate limit
+        if current_time - last_time >= self.min_publish_interval:
+            payload = {
+                "topic": topic_name,
+                "msgType": msgType,
+                "data": self.set_dict_from_fields(msg),
+            }
+
+            self.send_udp_message(payload)
+            self.last_publish_times[topic_name] = current_time
 
 
 def main(args=None):

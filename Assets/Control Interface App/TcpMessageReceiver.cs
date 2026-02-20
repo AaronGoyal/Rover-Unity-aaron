@@ -58,9 +58,7 @@ public class TcpMessageReceiver : MonoBehaviour
         {
             CurrentDestinationController.inst.ReceiveFeedback(message);
         }
-        else if(parts[0] == "/joint_states"){
-            RobotArmController.inst.Receive(message);
-        }
+
         else {
             MessagesController.inst.DisplayMessage(message);
         }
