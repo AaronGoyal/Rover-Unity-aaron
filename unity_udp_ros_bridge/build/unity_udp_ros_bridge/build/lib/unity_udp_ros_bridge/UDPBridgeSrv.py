@@ -179,6 +179,7 @@ class UDPBridgeSrv(Node):
     def send_success_response(self, addr, service_name, response_data):
         """Send successful service response via UDP"""
         payload = {
+            "service": service_name,
             "response": response_data
         }
         self.send_udp_message(payload)
@@ -186,6 +187,7 @@ class UDPBridgeSrv(Node):
     def send_error_response(self, addr, service_name, error_message):
         """Send error response via UDP"""
         payload = {
+            "service": service_name,
             "response": error_message
         }
         self.send_udp_message(payload)

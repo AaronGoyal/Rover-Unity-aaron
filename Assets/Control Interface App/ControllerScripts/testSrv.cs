@@ -20,7 +20,7 @@ public class TestSender : MonoBehaviour
         testService["service"]="test_srv";
         testService["request"]["data"]=true;
         string msg = testService.ToString();
-        //response = await UdpController.inst.PublishClientReq(msg);
+        response = await UdpController.inst.PublishClientReq(msg);
 
 
     }
@@ -31,7 +31,7 @@ public class TestSender : MonoBehaviour
         while (true) // Or some condition
         {
             
-
+            Debug.Log(response);
             yield return new WaitForSeconds(1f); // Wait 1 second
         }
         

@@ -6,6 +6,7 @@ from threading import Thread
 from std_msgs.msg import String
 from rosidl_runtime_py.utilities import get_message
 import json
+import array
 
 class UDPBridgePub(Node):
     """ROS2 Node using JSON over UDP"""
@@ -37,19 +38,11 @@ class UDPBridgePub(Node):
                 attr = getattr(msg_obj, key)
                 if hasattr(attr, '__slots__') and isinstance(value, dict):
                     self.set_fields_from_dict(attr, value)
-                elif isinstance(attr, list):
-                    # Detect if elements are float or int
-                    if all(isinstance(x, (int, float)) for x in value):
-                        # Convert numeric types appropriately
-                        if all(isinstance(x, float) or isinstance(x, int) for x in value):
-                            if all(isinstance(x, float) for x in value):
-                                setattr(msg_obj, key, [float(x) for x in value])
-                            else:
-                                setattr(msg_obj, key, [int(x) for x in value])
-                        else:
-                            setattr(msg_obj, key, value)  # fallback
-                    else:
-                        setattr(msg_obj, key, value)
+                # array.array field
+                elif isinstance(attr, array.array):
+                    typecode = attr.typecode  # 'f' for float, 'i' for int, etc.
+                    setattr(msg_obj, key, array.array(typecode, value))
+
                 else:
                     field_type = type(attr)
                     setattr(msg_obj, key, field_type(value))
@@ -88,7 +81,6 @@ class UDPBridgePub(Node):
             # Create new message instance
             ros2_msg = msg_class()
             self.set_fields_from_dict(ros2_msg, data_dict)
-
             # Publish the message
             self.publisher_dict[topic_name].publish(ros2_msg)
             self.get_logger().info(f"Published message on {topic_name}")

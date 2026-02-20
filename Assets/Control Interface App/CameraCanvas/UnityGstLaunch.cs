@@ -29,7 +29,6 @@ public class GStreamerLauncher : MonoBehaviour
         dropdown.RefreshShownValue();
 
         sourcePort = cameraPortMap[defaultCameraIndex];
-        UnityEngine.Debug.Log("Default camera set to index " + defaultCameraIndex + ", port: " + sourcePort);
 
         dropdown.onValueChanged.AddListener(OnDropdownChanged);
     }
@@ -41,7 +40,6 @@ public class GStreamerLauncher : MonoBehaviour
             StopGStreamer();
 
             sourcePort = cameraPortMap[index];
-            UnityEngine.Debug.Log("Camera " + index + " selected. Source port set to: " + sourcePort);
 
             LaunchGStreamer();
         }
@@ -74,17 +72,15 @@ public class GStreamerLauncher : MonoBehaviour
             gStreamerProcess.Start();
             gStreamerProcess.BeginOutputReadLine();
             gStreamerProcess.BeginErrorReadLine();
-            UnityEngine.Debug.Log("GStreamer launched on port: " + sourcePort);
         }
     }
-
+ 
     public void StopGStreamer()
     {
         if (gStreamerProcess != null && !gStreamerProcess.HasExited)
         {
             gStreamerProcess.Kill();
             gStreamerProcess.WaitForExit();
-            UnityEngine.Debug.Log("GStreamer process stopped.");
             gStreamerProcess = null;
         }
     }

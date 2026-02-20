@@ -142,7 +142,8 @@ public class UdpController : MonoBehaviour
 
                 // Update latest service responses dictionary
                 string serviceKey = message["service"]?.ToString();
-                
+                Debug.Log(message);
+                Debug.Log(serviceKey);
                 if (!string.IsNullOrEmpty(serviceKey))
                 {
                     latestServiceResponses[serviceKey] = message;
@@ -154,7 +155,7 @@ public class UdpController : MonoBehaviour
             {
                 Debug.LogWarning($"Failed to receive or parse service UDP message: {e.Message}");
             }
-        }
+        } 
     }
 
 
@@ -162,13 +163,15 @@ public class UdpController : MonoBehaviour
     public async UniTask<JObject> WaitForServiceResponse(string serviceKey, int maxAttempts = 50, float delayBetweenAttempts = 0.1f)
     {
         for (int i = 0; i < maxAttempts; i++)
-        {
-            // Check if the response has been received
+        {   
+foreach (var key in latestServiceResponses.Keys)
+{
+    Debug.Log("Key: " + key);
+}            // Check if the response has been received
             if (latestServiceResponses.TryGetValue(serviceKey, out JObject response))
             {
                 // Remove from dictionary after reading (optional, depending on your use case)
                 latestServiceResponses.Remove(serviceKey);
-                
                 if (showDebugLogs)
                     Debug.Log($"Service response found for key: {serviceKey}");
                 
@@ -257,11 +260,11 @@ public class UdpController : MonoBehaviour
 
         if (!isConnected || srvClient == null)
         {
-            Debug.LogWarning("UDP connection is not established. Attempting reconnect.");
+            Debug.Log("UDP connection is not established. Attempting reconnect.");
             Start();
             if (!isConnected || srvClient == null)
             {
-                Debug.LogWarning("UDP reconnect failed. Canceling publish.");
+                Debug.Log("UDP reconnect failed. Canceling publish.");
                 return SrvReturn;
             }
         }
@@ -271,24 +274,20 @@ public class UdpController : MonoBehaviour
             // If no service key provided, try to extract from message or generate one
             if (string.IsNullOrEmpty(serviceKey))
             {
-                try
-                {
-                    JObject msgObj = JObject.Parse(message);
-                    serviceKey = msgObj["service"]?.ToString() ?? msgObj["request_id"]?.ToString() ?? Guid.NewGuid().ToString();
-                }
-                catch
-                {
-                    serviceKey = Guid.NewGuid().ToString();
-                }
+              
+                JObject msgObj = JObject.Parse(message);
+                serviceKey = msgObj["service"].ToString();
+                
+           
             }
-
+            
             byte[] dataToSend = Encoding.UTF8.GetBytes(message);
             srvClient.Send(dataToSend, dataToSend.Length, srvEndPoint);
 
             disconnected = false;
-            
             // Wait for the response using the new dictionary-based approach
             SrvReturn = await WaitForServiceResponse(serviceKey);
+
             return SrvReturn;
         }
         catch (System.Exception e)
