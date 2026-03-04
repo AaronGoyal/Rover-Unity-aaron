@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class MapController : MonoBehaviour
 {
     public static MapController instance;
+    //[SerializeField] Camera cam;
     [SerializeField] Transform roverIcon;
     public Vector2 lineTarget;
 
@@ -85,6 +86,36 @@ public class MapController : MonoBehaviour
         // the row in the table for the location is created in Start() in PreloadedIcon
     }
 
+     // Accept parameters directly so no parsing is needed
+	public void AddCoordinateClick(double lat, double lon, string description, int iconTypeIndex)
+	{
+	    // Use the parameters passed into the function
+	    Vector2 position = GetWorldPosition(lat, lon);
+	    Transform parent = iconsParent;
+	    
+	    GameObject iconOnMap = Instantiate(icon, position, Quaternion.identity);
+	    iconOnMap.transform.SetParent(parent, true); // Change back to true
+
+	    PreloadedIcon script = iconOnMap.GetComponent<PreloadedIcon>();
+	    script.latitude = lat;
+	    script.longitude = lon;
+	    script.description = description;
+
+	    SpriteRenderer sr = iconOnMap.transform.GetChild(0).GetComponent<SpriteRenderer>();
+	    
+	    // Assign sprite based on the passed index
+	    Sprite sprite = gnssIcon;
+	    if (iconTypeIndex == 1) sprite = arucoIcon;
+	    else if (iconTypeIndex == 2) sprite = hammerIcon;
+	    else if (iconTypeIndex == 3) sprite = homeIcon;
+	    sr.sprite = sprite;
+
+	    // Optional: Only hide menu if this was called from the UI
+	    if(newListingMenu.activeSelf) newListingMenu.SetActive(false);
+	    
+	    CameraControl.inst.RescaleIcons();
+	}
+
     public void MoveIcon(Transform obj, double lat, double lon)
     {
         Vector2 position = GetWorldPosition(lat, lon);
@@ -129,7 +160,7 @@ public class MapController : MonoBehaviour
     }
 
 
-    public List<double> GetLatLonFromWorldPosition(Vector2 worldPos)
+    /*public List<double> GetLatLonFromWorldPosition(Vector2 worldPos)
     {
         const double centerLat = 51.464553;
         const double centerLon = -112.7275881;
@@ -147,8 +178,31 @@ public class MapController : MonoBehaviour
         double lat = TileYToLat(iconTileY, zoom);
 
         return new List<double>() { lat, lon };
-    }
+    }*/
+    	public List<double> GetLatLonFromWorldPosition(Vector2 worldPos)
+	{
+	    // Use the dynamic center from your active map data (No more Canada!)
+	    // We use a null check just in case currMap isn't set yet
+	    double centerLat = currMap != null ? currMap.lat : 44.566;
+	    double centerLon = currMap != null ? currMap.lon : -123.272;
+	    
+	    const int zoom = 19;
+	    const float unityUnitsPerTile = 1.0f;
 
+	    double centerTileX = LonToTileX(centerLon, zoom);
+	    double centerTileY = LatToTileY(centerLat, zoom);
+
+	    // Inverse of world position to tile delta
+	    // Unity +X is East, Tile +X is East
+	    // Unity +Y is North, Tile +Y is South (hence the negative worldPos.y)
+	    double iconTileX = (worldPos.x / unityUnitsPerTile) + centerTileX;
+	    double iconTileY = -(worldPos.y / unityUnitsPerTile) + centerTileY;
+
+	    double lon = TileXToLon(iconTileX, zoom);
+	    double lat = TileYToLat(iconTileY, zoom);
+
+	    return new List<double>() { lat, lon };
+	}
     public void ReceiveNextDestination(string msg)
     {
         var parts = msg.Split(";");
@@ -181,4 +235,7 @@ public class MapController : MonoBehaviour
         lineTarget = Vector2.zero;
         lineRenderer.enabled = false;
     }
+
+	public double GetCurrMapLat() => currMap != null ? currMap.lat : 44.566; // Fallback to Oregon
+	public double GetCurrMapLon() => currMap != null ? currMap.lon : -123.272;
 }

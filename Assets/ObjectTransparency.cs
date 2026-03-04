@@ -12,7 +12,7 @@ public class SpriteTransparency : MonoBehaviour
 
         slider.onValueChanged.AddListener(SetAlpha);
 
-        // Initialize full opacity
+        // Start with being invisible
         var c = sr.color;
         c.a = slider.value;
         sr.color = c;
