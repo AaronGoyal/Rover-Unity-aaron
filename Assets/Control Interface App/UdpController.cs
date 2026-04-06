@@ -117,12 +117,7 @@ public class UdpController : MonoBehaviour
                 if (!string.IsNullOrEmpty(topic))
                 {
                     latestMessages[topic] = message;
-                    if (showDebugLogs)
-                    {
-                        Debug.Log($"Updated latest message for topic: {topic}");
-                        Debug.Log($"UdpController instance ID: {GetInstanceID()}");
-
-                    }
+                    
                 }
             }
             catch (Exception e)

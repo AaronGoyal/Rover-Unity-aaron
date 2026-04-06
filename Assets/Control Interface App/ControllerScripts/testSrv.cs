@@ -31,7 +31,6 @@ public class TestSender : MonoBehaviour
         while (true) // Or some condition
         {
             
-            Debug.Log(response);
             yield return new WaitForSeconds(1f); // Wait 1 second
         }
         

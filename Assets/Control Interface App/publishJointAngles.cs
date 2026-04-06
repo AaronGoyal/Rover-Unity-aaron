@@ -1,11 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 public class publishJointAngles : MonoBehaviour
 {
     RobotArmController robotArm;
     KeyboardController keyboardController;
+
+    [SerializeField] private TextAsset joy2MessageJson;
+
+    [SerializeField] private TextAsset floatArrMessageJson;
 
     Coroutine currentCoroutine = null;
 
@@ -27,6 +32,7 @@ public class publishJointAngles : MonoBehaviour
 
     public void Publish(List<float> angles)
     {
+
         string msg = "set_joint_angles";
         for (int i = 0; i < angles.Count; i++)
         {
@@ -41,7 +47,7 @@ public class publishJointAngles : MonoBehaviour
             StopCoroutine(currentCoroutine);
         }
 
-        currentCoroutine = StartCoroutine(SendAngles(msg));
+        currentCoroutine = StartCoroutine(SendAngles(angles));
     }
 
     public void publish_preset_pose_0()
@@ -93,19 +99,33 @@ public class publishJointAngles : MonoBehaviour
         return allowArmControl;
     }
 
-    IEnumerator SendAngles(string msg)
+    IEnumerator SendAngles(List<float> pose_angles)
     {
         // Wait for confirmation
         yield return new WaitUntil(() => keyboardController.sendArmCommand);
         allowArmControl = false;
 
-        TcpController.inst.Publish("joy2;0");
+
+        JObject joy2_json = JObject.Parse(joy2MessageJson.text);
+        joy2_json["topic"] = "joy2";
+        joy2_json["data"]["axes"] = new JArray(new float[] {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f});
+        joy2_json["data"]["buttons"] = new JArray(new int[] {0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0});
+        string joy2_msg = joy2_json.ToString();
+
+        UdpController.inst.PublishMessage(joy2_msg);
         yield return new WaitForSeconds(0.15f);
 
-        TcpController.inst.Publish(msg);
+        JObject floatArrMessage = JObject.Parse(floatArrMessageJson.text);
+        floatArrMessage["topic"] = "set_joint_angles";
+        floatArrMessage["data"]["data"]= new JArray(pose_angles.ToArray());
+
+        string msg = floatArrMessage.ToString();
+        UdpController.inst.PublishMessage(msg);
 
         yield return new WaitForSeconds(7f);
-        TcpController.inst.Publish("joy2;0");
+        joy2_json["data"]["buttons"] = new JArray(new int[] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
+        joy2_msg = joy2_json.ToString();
+        UdpController.inst.PublishMessage(joy2_msg);
         allowArmControl = true;
         currentCoroutine = null; // Clear coroutine reference
         robotArm.remove_vis();

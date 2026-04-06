@@ -47,47 +47,47 @@ public class RobotArmController : MonoBehaviour
                 // Multiply by multiplier, convert rad → deg, add offset
                 joints[0].localRotation = Quaternion.Euler(
                     0,
-                    positions[0].Value<float>() * Mathf.Rad2Deg * multipliers[0] + offsets[0],
+                    positions[5].Value<float>() * Mathf.Rad2Deg * multipliers[0] + offsets[0],
                     0
                 );
 
                 joints[1].localRotation = Quaternion.Euler(
                     0,
                     0,
-                    positions[1].Value<float>() * Mathf.Rad2Deg * multipliers[1] + offsets[1]
+                    positions[6].Value<float>() * Mathf.Rad2Deg * multipliers[1] + offsets[1]
                 );
 
                 joints[2].localRotation = Quaternion.Euler(
                     0,
-                    positions[2].Value<float>() * Mathf.Rad2Deg * multipliers[2] + offsets[2],
+                    positions[7].Value<float>() * Mathf.Rad2Deg * multipliers[2] + offsets[2],
                     0
                 );
 
                 joints[3].localRotation = Quaternion.Euler(
                     0,
                     0,
-                    positions[3].Value<float>() * Mathf.Rad2Deg * multipliers[3] + offsets[3]
+                    positions[8].Value<float>() * Mathf.Rad2Deg * multipliers[3] + offsets[3]
                 );
 
                 joints[4].localRotation = Quaternion.Euler(
                     0,
                     0,
-                    positions[4].Value<float>() * Mathf.Rad2Deg * multipliers[4] + offsets[4]
+                    positions[10].Value<float>() * Mathf.Rad2Deg * multipliers[4] + offsets[4]
                 );
 
                 joints[5].localRotation = Quaternion.Euler(
                     0,
-                    positions[5].Value<float>() * Mathf.Rad2Deg * multipliers[5] + offsets[5],
+                    positions[11].Value<float>() * Mathf.Rad2Deg * multipliers[5] + offsets[5],
                     0
                 );
 
                 // Update trueAngles array in radians
-                trueAngles[0] = positions[0].Value<float>();
-                trueAngles[1] = positions[1].Value<float>();
-                trueAngles[2] = positions[2].Value<float>();
-                trueAngles[3] = positions[3].Value<float>();
-                trueAngles[4] = positions[4].Value<float>();
-                trueAngles[5] = positions[5].Value<float>();
+                trueAngles[0] = positions[5].Value<float>();
+                trueAngles[1] = positions[6].Value<float>();
+                trueAngles[2] = positions[7].Value<float>();
+                trueAngles[3] = positions[8].Value<float>();
+                trueAngles[4] = positions[10].Value<float>();
+                trueAngles[5] = positions[11].Value<float>();
 
             }
             yield return new WaitForSeconds(0.03f);
