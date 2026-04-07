@@ -7,13 +7,15 @@ public class DisplayManager : MonoBehaviour
     [SerializeField] Camera cameraDisplay1;
     [SerializeField] Camera cameraDisplay2;
 
+    [SerializeField] bool forceDisplay;
+
     void Start()
     {
         // Display 1 always active
         cameraDisplay1.enabled = true;
         canvasDisplay1.SetActive(true);
 
-        if (Display.displays.Length > 1)
+        if (Display.displays.Length > 1 || forceDisplay)
         {
             Display.displays[1].Activate();
             cameraDisplay2.enabled = true;
