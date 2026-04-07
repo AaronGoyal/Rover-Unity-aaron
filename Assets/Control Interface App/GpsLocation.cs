@@ -10,6 +10,7 @@ public class GpsLocation : MonoBehaviour
     public double latitude;
     public double longitude;
     public bool isActive;
+    public static GpsLocation inst;   // <— the missing piece
 
     public TextMeshProUGUI desc;
     public TextMeshProUGUI lat;
@@ -24,6 +25,17 @@ public class GpsLocation : MonoBehaviour
     public List<GameObject> waypoints = new();
     public ItemToFind itemAtDestination;
 
+    void Awake()
+    {
+    	/*if (inst != null && inst != this)
+    	{
+        	Destroy(gameObject);
+        	return;
+    	}*/
+	
+        inst = this;   // register the single active instance
+        Debug.Log("GpsLocation singleton initialized.");
+    }
 
     private void Update()
     {

@@ -27,15 +27,18 @@ public class SelectDestination : MonoBehaviour
     }
 
     private void Update()
-    {
-        if (!isSelected) return;
-        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.R))
-        {
-            Debug.Log("Ctrl + R detected");
-            GetComponent<GpsLocation>().ClearWaypoints();
-        }
-    }
+	{
+	    if (!isSelected) return;
 
+	    var gps = GetComponent<GpsLocation>();
+	    if (gps == null) return; // prevents crashes!
+
+	    if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.R))
+	    {
+		Debug.Log("Ctrl + R detected");
+		gps.ClearWaypoints();
+	    }
+	}
     public void ResetBackgroundColor()
     {
         bg.color = new Color(0, 1f, 14 / 255f, 0);
@@ -43,19 +46,24 @@ public class SelectDestination : MonoBehaviour
     }
 
     public void UnhighlightIcon()
-    {
-        var scr = GetComponent<GpsLocation>();
-        if (scr.iconObject == null) return;
-        scr.iconObject.transform.GetChild(0).GetComponent<SpriteRenderer>().color = new Color(1, 1, 1);
-        scr.SetHighlightStatus(false);
-    }
+	{
+	    var scr = GetComponent<GpsLocation>();
+	    if (scr == null || scr.iconObject == null) return;
 
-    public void SetIconGreen()
-    {
-        var scr = GetComponent<GpsLocation>();
-        if (scr.iconObject == null) return;
-        scr.iconObject.transform.GetChild(0).GetComponent<SpriteRenderer>().color = new Color(0, 1f, 2/255f);
+	    scr.iconObject.transform.GetChild(0)
+		.GetComponent<SpriteRenderer>().color = Color.white;
+	    scr.SetHighlightStatus(false);
+	}
 
-        scr.SetHighlightStatus(true);
-    }
+	public void SetIconGreen()
+	{
+	    var scr = GetComponent<GpsLocation>();
+	    if (scr == null || scr.iconObject == null) return;
+
+	    scr.iconObject.transform.GetChild(0)
+		.GetComponent<SpriteRenderer>().color = new Color(0, 1f, 2 / 255f);
+
+	    scr.SetHighlightStatus(true);
+	}
+
 }
