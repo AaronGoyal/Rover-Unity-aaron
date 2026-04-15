@@ -1,0 +1,19 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/MagneticField",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "magnetic_field": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "magnetic_field_covariance": []
+    }
+}

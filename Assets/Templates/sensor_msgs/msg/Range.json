@@ -1,0 +1,20 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/Range",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "ULTRASOUND=0": 0,
+        "INFRARED=1": 0,
+        "radiation_type": 0,
+        "field_of_view": 0.0,
+        "min_range": 0.0,
+        "max_range": 0.0,
+        "range": 0.0
+    }
+}

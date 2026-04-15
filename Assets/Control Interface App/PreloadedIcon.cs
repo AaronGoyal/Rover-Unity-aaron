@@ -12,7 +12,7 @@ public class PreloadedIcon : MonoBehaviour
     public void Start()
     {
         icon = transform.GetChild(0).GetComponent<SpriteRenderer>().sprite;
-        MapController.instance.MoveIcon(transform, latitude, longitude);
+        //MapController.instance.MoveIcon(transform, latitude, longitude);
         LocationsListController.inst.CreateNewListing(this);
     }
 }

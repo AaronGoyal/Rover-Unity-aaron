@@ -1,0 +1,18 @@
+{
+    "topic": "",
+    "msgType": "geometry_msgs/msg/Inertia",
+    "data": {
+        "m": 0.0,
+        "com": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "ixx": 0.0,
+        "ixy": 0.0,
+        "ixz": 0.0,
+        "iyy": 0.0,
+        "iyz": 0.0,
+        "izz": 0.0
+    }
+}

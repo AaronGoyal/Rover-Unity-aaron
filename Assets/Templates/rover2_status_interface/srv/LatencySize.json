@@ -1,0 +1,13 @@
+{
+    "service": "",
+    "srvType": "rover2_status_interface/srv/LatencySize",
+    "request": {
+        "dummydata": []
+    },
+    "response": {
+        "receivetime": {
+            "sec": 0,
+            "nanosec": 0
+        }
+    }
+}

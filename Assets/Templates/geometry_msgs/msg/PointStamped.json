@@ -1,0 +1,18 @@
+{
+    "topic": "",
+    "msgType": "geometry_msgs/msg/PointStamped",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "point": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        }
+    }
+}

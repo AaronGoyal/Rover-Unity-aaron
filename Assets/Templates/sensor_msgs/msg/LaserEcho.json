@@ -1,0 +1,7 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/LaserEcho",
+    "data": {
+        "echoes": []
+    }
+}

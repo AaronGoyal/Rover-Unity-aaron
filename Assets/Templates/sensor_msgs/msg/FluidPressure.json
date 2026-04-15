@@ -1,0 +1,15 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/FluidPressure",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "fluid_pressure": 0.0,
+        "variance": 0.0
+    }
+}

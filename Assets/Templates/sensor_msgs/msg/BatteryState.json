@@ -1,0 +1,49 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/BatteryState",
+    "data": {
+        "POWER_SUPPLY_STATUS_UNKNOWN": 0,
+        "POWER_SUPPLY_STATUS_CHARGING": 0,
+        "POWER_SUPPLY_STATUS_DISCHARGING": 0,
+        "POWER_SUPPLY_STATUS_NOT_CHARGING": 0,
+        "POWER_SUPPLY_STATUS_FULL": 0,
+        "POWER_SUPPLY_HEALTH_UNKNOWN": 0,
+        "POWER_SUPPLY_HEALTH_GOOD": 0,
+        "POWER_SUPPLY_HEALTH_OVERHEAT": 0,
+        "POWER_SUPPLY_HEALTH_DEAD": 0,
+        "POWER_SUPPLY_HEALTH_OVERVOLTAGE": 0,
+        "POWER_SUPPLY_HEALTH_UNSPEC_FAILURE": 0,
+        "POWER_SUPPLY_HEALTH_COLD": 0,
+        "POWER_SUPPLY_HEALTH_WATCHDOG_TIMER_EXPIRE": 0,
+        "POWER_SUPPLY_HEALTH_SAFETY_TIMER_EXPIRE": 0,
+        "POWER_SUPPLY_TECHNOLOGY_UNKNOWN": 0,
+        "POWER_SUPPLY_TECHNOLOGY_NIMH": 0,
+        "POWER_SUPPLY_TECHNOLOGY_LION": 0,
+        "POWER_SUPPLY_TECHNOLOGY_LIPO": 0,
+        "POWER_SUPPLY_TECHNOLOGY_LIFE": 0,
+        "POWER_SUPPLY_TECHNOLOGY_NICD": 0,
+        "POWER_SUPPLY_TECHNOLOGY_LIMN": 0,
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "voltage": 0.0,
+        "temperature": 0.0,
+        "current": 0.0,
+        "charge": 0.0,
+        "capacity": 0.0,
+        "design_capacity": 0.0,
+        "percentage": 0.0,
+        "power_supply_status": 0,
+        "power_supply_health": 0,
+        "power_supply_technology": 0,
+        "present": false,
+        "cell_voltage": [],
+        "cell_temperature": [],
+        "location": "",
+        "serial_number": ""
+    }
+}

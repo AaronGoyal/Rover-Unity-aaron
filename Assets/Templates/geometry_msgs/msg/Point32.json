@@ -1,0 +1,9 @@
+{
+    "topic": "",
+    "msgType": "geometry_msgs/msg/Point32",
+    "data": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    }
+}

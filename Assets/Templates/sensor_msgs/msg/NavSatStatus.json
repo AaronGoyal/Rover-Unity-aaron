@@ -1,0 +1,16 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/NavSatStatus",
+    "data": {
+        "STATUS_NO_FIX": 0,
+        "STATUS_FIX": 0,
+        "STATUS_SBAS_FIX": 0,
+        "STATUS_GBAS_FIX": 0,
+        "status": 0,
+        "SERVICE_GPS": 0,
+        "SERVICE_GLONASS": 0,
+        "SERVICE_COMPASS": 0,
+        "SERVICE_GALILEO": 0,
+        "service": 0
+    }
+}

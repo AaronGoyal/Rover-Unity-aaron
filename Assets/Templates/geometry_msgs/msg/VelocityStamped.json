@@ -1,0 +1,27 @@
+{
+    "topic": "",
+    "msgType": "geometry_msgs/msg/VelocityStamped",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "body_frame_id": "",
+        "reference_frame_id": "",
+        "velocity": {
+            "linear": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "angular": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        }
+    }
+}

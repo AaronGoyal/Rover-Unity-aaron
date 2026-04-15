@@ -75,3 +75,17 @@ crashlytics-build.properties
 ros2_ws/build/
 ros2_ws/install/
 ros2_ws/log/
+# =========================
+# Mono / Unity crash reports
+# =========================
+mono_crash.*
+mono_crash.*.json
+mono_crash.*.txt
+crash.dmp
+sysinfo.txt
+
+# Unity logs
+Editor.log
+Player.log
+Player-prev.log
+Editor-prev.log

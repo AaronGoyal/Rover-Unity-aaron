@@ -1,0 +1,51 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/MultiDOFJointState",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "joint_names": [],
+        "transforms": {
+            "translation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 0.0
+            }
+        },
+        "twist": {
+            "linear": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "angular": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        "wrench": {
+            "force": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "torque": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        }
+    }
+}

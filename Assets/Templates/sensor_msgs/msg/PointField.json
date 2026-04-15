@@ -1,0 +1,18 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/PointField",
+    "data": {
+        "INT8": 0,
+        "UINT8": 0,
+        "INT16": 0,
+        "UINT16": 0,
+        "INT32": 0,
+        "UINT32": 0,
+        "FLOAT32": 0,
+        "FLOAT64": 0,
+        "name": "",
+        "offset": 0,
+        "datatype": 0,
+        "count": 0
+    }
+}
