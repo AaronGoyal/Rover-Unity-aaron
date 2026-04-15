@@ -1,0 +1,14 @@
+{
+    "service": "",
+    "srvType": "rover2_camera_interface/srv/CamParams",
+    "request": {
+        "preset_level": 0,
+        "bitrate": 0,
+        "stream_width": 0,
+        "stream_height": 0,
+        "fec_percentage": 0
+    },
+    "response": {
+        "ack": ""
+    }
+}

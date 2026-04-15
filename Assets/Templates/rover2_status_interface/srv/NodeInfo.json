@@ -1,0 +1,13 @@
+{
+    "service": "",
+    "srvType": "rover2_status_interface/srv/NodeInfo",
+    "request": {
+        "node": "",
+        "nodenamespace": ""
+    },
+    "response": {
+        "pub_topics": [],
+        "sub_topics": [],
+        "services": []
+    }
+}

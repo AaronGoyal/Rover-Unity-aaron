@@ -1,0 +1,11 @@
+{
+    "topic": "",
+    "msgType": "std_msgs/msg/Float32MultiArray",
+    "data": {
+        "layout": {
+            "dim": [],
+            "data_offset": 0
+        },
+        "data": []
+    }
+}

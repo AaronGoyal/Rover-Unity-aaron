@@ -1,0 +1,27 @@
+{
+    "topic": "",
+    "msgType": "geometry_msgs/msg/TransformStamped",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "child_frame_id": "",
+        "transform": {
+            "translation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 0.0
+            }
+        }
+    }
+}

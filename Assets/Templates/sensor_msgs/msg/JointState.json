@@ -1,0 +1,17 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/JointState",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "name": [],
+        "position": [],
+        "velocity": [],
+        "effort": []
+    }
+}
