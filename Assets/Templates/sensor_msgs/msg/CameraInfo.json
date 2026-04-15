@@ -1,0 +1,29 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/CameraInfo",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "height": 0,
+        "width": 0,
+        "distortion_model": "",
+        "d": [],
+        "k": [],
+        "r": [],
+        "p": [],
+        "binning_x": 0,
+        "binning_y": 0,
+        "roi": {
+            "x_offset": 0,
+            "y_offset": 0,
+            "height": 0,
+            "width": 0,
+            "do_rectify": false
+        }
+    }
+}

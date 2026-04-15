@@ -1,0 +1,23 @@
+{
+    "topic": "",
+    "msgType": "geometry_msgs/msg/PolygonInstanceStamped",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "polygon": {
+            "polygon": {
+                "points": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "id": 0
+        }
+    }
+}

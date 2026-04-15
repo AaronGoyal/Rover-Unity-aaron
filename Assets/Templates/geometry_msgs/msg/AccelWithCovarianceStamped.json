@@ -1,0 +1,28 @@
+{
+    "topic": "",
+    "msgType": "geometry_msgs/msg/AccelWithCovarianceStamped",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "accel": {
+            "accel": {
+                "linear": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "angular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "covariance": []
+        }
+    }
+}

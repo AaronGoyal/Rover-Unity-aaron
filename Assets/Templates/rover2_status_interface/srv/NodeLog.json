@@ -1,0 +1,12 @@
+{
+    "service": "",
+    "srvType": "rover2_status_interface/srv/NodeLog",
+    "request": {
+        "enable": false,
+        "hz": 0.0,
+        "node": ""
+    },
+    "response": {
+        "acknowledge": false
+    }
+}

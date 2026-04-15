@@ -58,21 +58,7 @@ public class sensorDataROS : MonoBehaviour
 
     void Update()
     {
-        if (sensor_node == null && ros2Unity.Ok())
-        {
-            sensor_node = ros2Unity.CreateNode("unity_sensor_sub");
-            sensor_sub = sensor_node.CreateSubscription<std_msgs.msg.Float32MultiArray>(
-                "scimech/data",
-                msg =>
-                {
-
-                    hydrogen = msg.Data[0];
-                    ozone = msg.Data[1];
-                    geiger = msg.Data[2];
-                    newDataAvailable = true;
-
-                });
-        }
+        
 
         if (newDataAvailable)
         {

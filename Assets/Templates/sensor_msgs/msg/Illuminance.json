@@ -1,0 +1,15 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/Illuminance",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "illuminance": 0.0,
+        "variance": 0.0
+    }
+}

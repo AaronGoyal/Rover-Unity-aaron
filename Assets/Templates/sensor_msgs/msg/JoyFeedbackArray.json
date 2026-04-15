@@ -1,0 +1,14 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/JoyFeedbackArray",
+    "data": {
+        "array": {
+            "TYPE_LED": 0,
+            "TYPE_RUMBLE": 0,
+            "TYPE_BUZZER": 0,
+            "type": 0,
+            "id": 0,
+            "intensity": 0.0
+        }
+    }
+}

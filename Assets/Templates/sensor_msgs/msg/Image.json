@@ -1,0 +1,19 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/Image",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "height": 0,
+        "width": 0,
+        "encoding": "",
+        "is_bigendian": 0,
+        "step": 0,
+        "data": []
+    }
+}

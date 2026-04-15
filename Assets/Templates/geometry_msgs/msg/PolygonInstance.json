@@ -1,0 +1,14 @@
+{
+    "topic": "",
+    "msgType": "geometry_msgs/msg/PolygonInstance",
+    "data": {
+        "polygon": {
+            "points": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        "id": 0
+    }
+}

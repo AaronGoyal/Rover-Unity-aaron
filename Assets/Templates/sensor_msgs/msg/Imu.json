@@ -1,0 +1,32 @@
+{
+    "topic": "",
+    "msgType": "sensor_msgs/msg/Imu",
+    "data": {
+        "header": {
+            "stamp": {
+                "sec": 0,
+                "nanosec": 0
+            },
+            "frame_id": ""
+        },
+        "orientation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 0.0
+        },
+        "orientation_covariance": [],
+        "angular_velocity": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "angular_velocity_covariance": [],
+        "linear_acceleration": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "linear_acceleration_covariance": []
+    }
+}

@@ -4,6 +4,8 @@ using ROS2;
 using TMPro;
 using UnityEngine.InputSystem;
 using System.Collections;
+using Newtonsoft.Json.Linq;
+
 
 public class ControllerManager : MonoBehaviour
 {
@@ -44,6 +46,19 @@ public class ControllerManager : MonoBehaviour
 
     private float publishRate = 1f / 30f; // 30 Hz
     private Coroutine inputPublisherCoroutine;
+
+    [SerializeField] private TextAsset driveMessageJson;
+
+    [SerializeField] private TextAsset tiltMessageJson;
+
+    [SerializeField] private TextAsset joyMessageJson;
+
+
+    private JObject driveMessage;
+
+    private JObject tiltMessage;
+
+    private JObject joyMessage;
 
     void Awake()
     {
@@ -248,12 +263,13 @@ D-Pad:
         // Publish drive command if there's input, or send stop command once when input stops
         if (driveHasInput || wasDriveActive)
         {
-            string drive_msg = "cmd_vel";
-            drive_msg += ";true"; // + driveHasInput.ToString();
-            drive_msg += ";false";
-            drive_msg += ";" + leftJoy.y * driveSpeedSlider.value;
-            drive_msg += ";" + rightJoy.x * driveSpeedSlider.value * -1;
-            UdpController.inst.PublishControl(drive_msg);
+            
+            driveMessage = JObject.Parse(driveMessageJson.text);
+            driveMessage["topic"] = "cmd_vel";
+            driveMessage["data"]["angular"]["z"] = rightJoy.x * driveSpeedSlider.value * -1;
+            driveMessage["data"]["linear"]["x"] = leftJoy.y * driveSpeedSlider.value;
+            string msg = driveMessage.ToString();
+            UdpController.inst.PublishMessage(msg);
 
             wasDriveActive = driveHasInput;
         }
@@ -280,13 +296,15 @@ D-Pad:
         {
             string panTiltPrefix = useChassisPanTilt ? "chassis/pan_tilt/control" : "tower/pan_tilt/control";
 
-            string pan_tilt_msg = panTiltPrefix;
-            pan_tilt_msg += ";" + (start == 1);
-            pan_tilt_msg += ";" + ((buttonWest - buttonEast) + (shoulderWest - shoulderEast)) * 100;
-            pan_tilt_msg += ";" + (buttonNorth - buttonSouth) * 100;
-            pan_tilt_msg += ";false";
-            pan_tilt_msg += ";false";
-            UdpController.inst.PublishControl(pan_tilt_msg);
+            tiltMessage = JObject.Parse(tiltMessageJson.text);
+            tiltMessage["topic"] = panTiltPrefix;
+            tiltMessage["data"]["should_center"] = start==1;
+            tiltMessage["data"]["relative_pan_adjustment"] = ((buttonWest - buttonEast) + (shoulderWest - shoulderEast)) * 100;
+            tiltMessage["data"]["relative_tilt_adjustment"] = (buttonNorth - buttonSouth) * 100;
+
+            string msg = tiltMessage.ToString();
+            UdpController.inst.PublishMessage(msg);
+            
         }
         std_msgs.msg.UInt8 light_msg = new std_msgs.msg.UInt8();
         if (dpadNorth == 1)
@@ -351,11 +369,14 @@ D-Pad:
             };
 
 
+            joyMessage = JObject.Parse(joyMessageJson.text);
+            joyMessage["topic"] = "joy";
+            joyMessage["data"]["axes"] = new JArray(axes);
+            joyMessage["data"]["buttons"] = new JArray(buttons);
+
+            string msg = joyMessage.ToString();
+            UdpController.inst.PublishMessage(msg);
             
-            sensor_msgs.msg.Joy msg = new sensor_msgs.msg.Joy();
-            msg.Axes = axes;
-            msg.Buttons = buttons;
-            joy_pub.Publish(msg);
         }
     }
 
