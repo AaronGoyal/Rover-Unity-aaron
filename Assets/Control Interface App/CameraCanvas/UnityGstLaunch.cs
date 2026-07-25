@@ -1,8 +1,14 @@
 using UnityEngine;
 using System.Diagnostics;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using ROS2;
 
+using Debug = UnityEngine.Debug;
+
+using BoolReq = std_srvs.srv.SetBool_Request;
+using BoolResp = std_srvs.srv.SetBool_Response;
 
 public class GStreamerLauncher : MonoBehaviour
 {
@@ -12,6 +18,10 @@ public class GStreamerLauncher : MonoBehaviour
     private Process gStreamerProcess;
     public TMP_Dropdown dropdown;
 
+    private ROS2UnityComponent ros2Unity;
+    private ROS2Node ros2Node;
+    private Dictionary<string, IClient<BoolReq, BoolResp>> cameraClients;
+
     private string mulitcastAddr = "239.0.0.1";
 
     private class CameraEntry
@@ -19,31 +29,118 @@ public class GStreamerLauncher : MonoBehaviour
         public string name;
         public int port;
         public string framerate;
+        public string serviceNamespace;
 
-        public CameraEntry(string name, int port, string framerate)
+        public CameraEntry(string name, int port, string framerate, string serviceNamespace)
         {
             this.name = name;
             this.port = port;
             this.framerate = framerate;
+            this.serviceNamespace = serviceNamespace;
         }
+    }
+
+    private CameraEntry activeEntry;
+
+    private IEnumerator ToggleCameraThenLaunch(CameraEntry entry)
+    {
+        if (!cameraClients.TryGetValue(entry.serviceNamespace, out IClient<BoolReq, BoolResp> client))
+        {
+            Debug.LogError($"No ROS2 client found for camera '{entry.serviceNamespace}'.");
+            yield break;
+        }
+
+        if (activeEntry != null && activeEntry.serviceNamespace != entry.serviceNamespace)
+        {
+            yield return SetCameraState(activeEntry, false);
+        }
+
+        while (!client.IsServiceAvailable())
+        {
+            Debug.Log($"Waiting for /{entry.serviceNamespace}/toggle_camera service...");
+            yield return new WaitForSecondsRealtime(1);
+        }
+
+        BoolResp response = CallToggleCamera(client, true);
+        Debug.Log($"[{entry.serviceNamespace}] toggle_camera response: success = {response.Success}, message = {response.Message}");
+
+        if (response.Success)
+        {
+            activeEntry = entry;
+            LaunchGStreamer();
+        }
+        else
+        {
+            Debug.LogWarning($"Camera toggle failed for {entry.serviceNamespace}: {response.Message}");
+        }
+    }
+
+    private IEnumerator SetCameraState(CameraEntry entry, bool state)
+    {
+        if (!cameraClients.TryGetValue(entry.serviceNamespace, out IClient<BoolReq, BoolResp> client))
+        {
+            yield break;
+        }
+
+        while (!client.IsServiceAvailable())
+        {
+            yield return new WaitForSecondsRealtime(1);
+        }
+
+        BoolResp response = CallToggleCamera(client, state);
+        Debug.Log($"[{entry.serviceNamespace}] toggle_camera({state}) response: success = {response.Success}, message = {response.Message}");
+    }
+
+    private BoolResp CallToggleCamera(IClient<BoolReq, BoolResp> client, bool state)
+    {
+        BoolReq request = new BoolReq();
+        request.Data = state;
+        return client.Call(request);
     }
 
     private Dictionary<int, CameraEntry> cameraPortMap = new Dictionary<int, CameraEntry>()
     {
-        {0, new CameraEntry("IR",            42073, "30/1")},
-        {1, new CameraEntry("Tower",         42068, "30/1")},
-        {2, new CameraEntry("Chassis Right", 42070, "25/1")},
-        {3, new CameraEntry("Chassis Left",  42069, "25/1")},
-        {4, new CameraEntry("Gripper",       42074, "30/1")},
-        {5, new CameraEntry("Back",          42071, "25/1")},
-        {6, new CameraEntry("BEV",           42072, "25/1")},
-        {7, new CameraEntry("Chassis",       42075, "30/1")} //Not Used?
+        {0, new CameraEntry("IR",            42073, "30/1", "chassis_gimbal")},
+        {1, new CameraEntry("Tower",         42068, "30/1", "tower_gimbal")},
+        {2, new CameraEntry("Chassis Right", 42070, "25/1", "chassis_right")},
+        {3, new CameraEntry("Chassis Left",  42069, "25/1", "chassis_left")},
+        {4, new CameraEntry("Gripper",       42074, "30/1", "d405")},
+        {5, new CameraEntry("Back",          42071, "25/1", "back")},
+        {6, new CameraEntry("BEV",           42072, "25/1", "bev")},
+        {7, new CameraEntry("Chassis",       42075, "30/1", "d455")} //Not Used?
     };
 
     public int defaultCameraIndex = 3;
 
     void Start()
     {
+        ros2Unity = GetComponent<ROS2UnityComponent>();
+        if (ros2Unity == null)
+        {
+            Debug.LogError("[PerpToPlane] No ROS2UnityComponent found on this GameObject - add one.");
+            return;
+        }
+        if (ros2Unity.Ok())
+        {
+            if (ros2Node == null)
+            {
+                ros2Node = ros2Unity.CreateNode("ROS2UnityCameraToggleClient");
+                cameraClients = new Dictionary<string, IClient<BoolReq, BoolResp>>();
+                foreach (CameraEntry entry in cameraPortMap.Values)
+                {
+                    if (!cameraClients.ContainsKey(entry.serviceNamespace))
+                    {
+                        cameraClients[entry.serviceNamespace] = ros2Node.CreateClient<BoolReq, BoolResp>(
+                            $"/{entry.serviceNamespace}/toggle_camera");
+                    }
+                }
+                Debug.Log($"Created {cameraClients.Count} camera toggle clients.");
+            }
+        }
+        else
+        {
+            Debug.LogError("ros2Unity.Ok() returned false - ROS2 not initialized.");
+        }
         // Select the default camera port at startup, but keep launching manual through the UI.
         if (dropdown != null)
         {
@@ -64,13 +161,14 @@ public class GStreamerLauncher : MonoBehaviour
         if (cameraPortMap.ContainsKey(index))
         {
             StopGStreamer();
-            sourcePort = cameraPortMap[index].port.ToString();
-            sourceFramerate = cameraPortMap[index].framerate;
-            LaunchGStreamer();
+            CameraEntry entry = cameraPortMap[index];
+            sourcePort = entry.port.ToString();
+            sourceFramerate = entry.framerate;
+            StartCoroutine(ToggleCameraThenLaunch(entry));
         }
         else
         {
-            UnityEngine.Debug.LogWarning("No port mapping found for dropdown index: " + index);
+            Debug.LogWarning("No port mapping found for dropdown index: " + index);
         }
     }
 
