@@ -17194,6 +17194,7 @@ GameObject:
   - component: {fileID: 5574830673584325462}
   - component: {fileID: 8075807226648986296}
   - component: {fileID: 4123913511824673215}
+  - component: {fileID: 5593872229512537519}
   m_Layer: 5
   m_Name: Feed3
   m_TagString: Untagged
@@ -17391,6 +17392,18 @@ MonoBehaviour:
   portNum: 5002
   dropdown: {fileID: 150779331354549027}
   defaultCameraIndex: 2
+--- !u!114 &5593872229512537519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3570654427403983300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: feab04ad06492965492b3edc6423aa53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3575359372884246314
 GameObject:
   m_ObjectHideFlags: 0
@@ -18016,6 +18029,7 @@ GameObject:
   - component: {fileID: 8220954047244775432}
   - component: {fileID: 6699881467228948557}
   - component: {fileID: 3217681770805403881}
+  - component: {fileID: 742982556769760620}
   m_Layer: 5
   m_Name: Feed2
   m_TagString: Untagged
@@ -18213,6 +18227,18 @@ MonoBehaviour:
   portNum: 5001
   dropdown: {fileID: 6349287311496994046}
   defaultCameraIndex: 1
+--- !u!114 &742982556769760620
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3693816571932307413}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: feab04ad06492965492b3edc6423aa53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3741597132516372790
 GameObject:
   m_ObjectHideFlags: 0
@@ -35943,6 +35969,7 @@ GameObject:
   - component: {fileID: 8489470452458515609}
   - component: {fileID: 5743807478087345765}
   - component: {fileID: 6144019523845442849}
+  - component: {fileID: 2455542847812239632}
   m_Layer: 5
   m_Name: Feed1
   m_TagString: Untagged
@@ -36140,6 +36167,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraImage: {fileID: 2741029199693715810}
   deviceDirectory: chassis
+--- !u!114 &2455542847812239632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7231403509169946276}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: feab04ad06492965492b3edc6423aa53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7231468359144892377
 GameObject:
   m_ObjectHideFlags: 0
