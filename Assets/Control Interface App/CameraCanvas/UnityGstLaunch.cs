@@ -117,24 +117,32 @@ public class GStreamerLauncher : MonoBehaviour
         ros2Unity = GetComponent<ROS2UnityComponent>();
         if (ros2Unity == null)
         {
-            Debug.LogError("[PerpToPlane] No ROS2UnityComponent found on this GameObject - add one.");
-            return;
+            Debug.LogError("No ROS2UnityComponent found on this GameObject - add one.");
         }
-        if (ros2Unity.Ok())
+        else if (ros2Unity.Ok())
         {
             if (ros2Node == null)
             {
-                ros2Node = ros2Unity.CreateNode("ROS2UnityCameraToggleClient");
+                ros2Node = ros2Unity.CreateNode($"ROS2UnityCameraToggleClient_{Mathf.Abs(GetInstanceID())}");
                 cameraClients = new Dictionary<string, IClient<BoolReq, BoolResp>>();
                 foreach (CameraEntry entry in cameraPortMap.Values)
                 {
-                    if (!cameraClients.ContainsKey(entry.serviceNamespace))
+                    if (cameraClients.ContainsKey(entry.serviceNamespace))
+                    {
+                        continue;
+                    }
+
+                    try
                     {
                         cameraClients[entry.serviceNamespace] = ros2Node.CreateClient<BoolReq, BoolResp>(
                             $"/{entry.serviceNamespace}/toggle_camera");
                     }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogWarning($"Could not create toggle_camera client for '{entry.serviceNamespace}': {e.Message}");
+                    }
                 }
-                Debug.Log($"Created {cameraClients.Count} camera toggle clients.");
+                Debug.Log($"Created {cameraClients.Count}/{cameraPortMap.Count} camera toggle clients.");
             }
         }
         else
@@ -158,12 +166,14 @@ public class GStreamerLauncher : MonoBehaviour
 
     public void OnDropdownChanged(int index)
     {
+        Debug.Log($"[OnDropdownChanged] index={index}, GameObject={gameObject.name}, instanceID={GetInstanceID()}");
         if (cameraPortMap.ContainsKey(index))
         {
             StopGStreamer();
             CameraEntry entry = cameraPortMap[index];
             sourcePort = entry.port.ToString();
             sourceFramerate = entry.framerate;
+            Debug.Log($"[OnDropdownChanged] set sourcePort={sourcePort}, sourceFramerate={sourceFramerate} on instanceID={GetInstanceID()}");
             StartCoroutine(ToggleCameraThenLaunch(entry));
         }
         else
@@ -174,6 +184,7 @@ public class GStreamerLauncher : MonoBehaviour
 
     public void LaunchGStreamer()
     {
+        Debug.Log($"[LaunchGStreamer] called on GameObject={gameObject.name}, instanceID={GetInstanceID()}, sourcePort='{sourcePort}', portNum='{portNum}'");
         // If the last gst-launch process already exited, clear it so the button can restart it.
         if (gStreamerProcess != null && gStreamerProcess.HasExited)
         {
