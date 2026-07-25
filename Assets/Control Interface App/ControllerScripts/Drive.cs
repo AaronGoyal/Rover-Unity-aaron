@@ -289,7 +289,8 @@ D-Pad:
         bool panTiltHasInput = (start == 1) ||
                             (buttonWest != 0 || buttonEast != 0) ||
                             (shoulderWest != 0 || shoulderEast != 0) ||
-                            (buttonNorth != 0 || buttonSouth != 0);
+                            (buttonNorth != 0 || buttonSouth != 0) ||
+                            (dpadEast != 0 || dpadWest != 0);
 
         // Only publish pan/tilt command if there's input
         if (panTiltHasInput)
