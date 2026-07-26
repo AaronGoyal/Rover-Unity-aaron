@@ -23,9 +23,10 @@ public class ControllerManager : MonoBehaviour
     public Button driveButton;
     public Button armButton;
     public Button offButton;
-
     public Slider driveSpeedSlider;
     public Slider armSpeedSlider;
+
+    public double gimbalSpeedScale = 0.3;
     
     private Color selectedColor = Color.green;
     private Color unselectedColor = Color.red;
@@ -258,7 +259,8 @@ D-Pad:
 
 
         // Check if drive has input
-        bool driveHasInput = (leftJoy.y != 0 || rightJoy.x != 0);
+        //bool driveHasInput = (leftJoy.y != 0 || rightJoy.x != 0);
+        bool driveHasInput = true;
 
         // Publish drive command if there's input, or send stop command once when input stops
         if (driveHasInput || wasDriveActive)
@@ -313,9 +315,9 @@ D-Pad:
             tiltMessage["data"]["go_home"] = start == 1;
             tiltMessage["data"]["is_angle"] = false;
             tiltMessage["data"]["stabalize"] = false;
-            tiltMessage["data"]["yaw"] = ((buttonWest - buttonEast) + (shoulderWest - shoulderEast)); 
-            tiltMessage["data"]["pitch"] = (buttonNorth - buttonSouth);
-            tiltMessage["data"]["roll"] = (dpadEast - dpadWest);
+            tiltMessage["data"]["yaw"] = gimbalSpeedScale * ((buttonWest - buttonEast) + (shoulderWest - shoulderEast)); 
+            tiltMessage["data"]["pitch"] = gimbalSpeedScale * (buttonNorth - buttonSouth);
+            tiltMessage["data"]["roll"] = gimbalSpeedScale * (dpadEast - dpadWest);
 
             string msg = tiltMessage.ToString();
             UdpController.inst.PublishMessage(msg);
@@ -346,7 +348,7 @@ D-Pad:
         float shoulderWest, float shoulderEast)
     {
         // Check if arm has any input
-        bool armHasInput = (leftJoy != Vector2.zero) ||
+        /*bool armHasInput = (leftJoy != Vector2.zero) ||
                         (rightJoy != Vector2.zero) ||
                         (triggerWest != 0) ||
                         (triggerEast != 0) ||
@@ -361,7 +363,8 @@ D-Pad:
                         (start != 0) ||
                         (select != 0) ||
                         (shoulderWest != 0) ||
-                        (shoulderEast != 0);
+                        (shoulderEast != 0);*/
+        bool armHasInput = true;
         armSpeedSlider.value += (buttonNorth-buttonSouth)*0.025f;
         // Only publish if there's input
         if (armHasInput || wasArmActive)
