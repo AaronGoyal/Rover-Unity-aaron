@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using ROS2;
 
@@ -61,7 +62,9 @@ public class GStreamerLauncher : MonoBehaviour
             yield return new WaitForSecondsRealtime(1);
         }
 
-        BoolResp response = CallToggleCamera(client, true);
+        Task<BoolResp> task = CallToggleCameraAsync(client, true);
+        yield return new WaitUntil(() => task.IsCompleted);
+        BoolResp response = task.Result;
         Debug.Log($"[{entry.serviceNamespace}] toggle_camera response: success = {response.Success}, message = {response.Message}");
 
         if (response.Success)
@@ -87,15 +90,17 @@ public class GStreamerLauncher : MonoBehaviour
             yield return new WaitForSecondsRealtime(1);
         }
 
-        BoolResp response = CallToggleCamera(client, state);
+        Task<BoolResp> task = CallToggleCameraAsync(client, state);
+        yield return new WaitUntil(() => task.IsCompleted);
+        BoolResp response = task.Result;
         Debug.Log($"[{entry.serviceNamespace}] toggle_camera({state}) response: success = {response.Success}, message = {response.Message}");
     }
 
-    private BoolResp CallToggleCamera(IClient<BoolReq, BoolResp> client, bool state)
+    private Task<BoolResp> CallToggleCameraAsync(IClient<BoolReq, BoolResp> client, bool state)
     {
         BoolReq request = new BoolReq();
         request.Data = state;
-        return client.Call(request);
+        return client.CallAsync(request);
     }
 
     private Dictionary<int, CameraEntry> cameraPortMap = new Dictionary<int, CameraEntry>()
