@@ -1,4 +1,4 @@
-gst-launch-1.0 udpsrc port=42070 caps="application/x-rtp, media=video, encoding-name=H265, payload=96" ! \
+gst-launch-1.0 udpsrc port=42070 address=239.0.0.1 caps="application/x-rtp, media=video, encoding-name=H265, payload=96" ! \
     rtpjitterbuffer latency=200 ! \
     rtpulpfecdec ! \
     rtph265depay ! \
@@ -9,7 +9,7 @@ gst-launch-1.0 udpsrc port=42070 caps="application/x-rtp, media=video, encoding-
     videorate ! \
     video/x-raw,framerate=25/1 ! \
     autovideosink sync=false & 
-gst-launch-1.0 udpsrc port=42071 caps="application/x-rtp, media=video, encoding-name=H265, payload=96" ! \
+gst-launch-1.0 udpsrc port=42071 address=239.0.0.1 caps="application/x-rtp, media=video, encoding-name=H265, payload=96" ! \
     rtpjitterbuffer latency=200 ! \
     rtpulpfecdec ! \
     rtph265depay ! \
@@ -20,7 +20,7 @@ gst-launch-1.0 udpsrc port=42071 caps="application/x-rtp, media=video, encoding-
     videorate ! \
     video/x-raw,framerate=25/1 ! \
     autovideosink sync=false & 
-gst-launch-1.0 udpsrc port=42074 caps="application/x-rtp, media=video, encoding-name=H265, payload=96" ! \
+gst-launch-1.0 udpsrc port=42074 address=239.0.0.1 caps="application/x-rtp, media=video, encoding-name=H265, payload=96" ! \
     rtpjitterbuffer latency=200 ! \
     rtpulpfecdec ! \
     rtph265depay ! \
@@ -31,7 +31,7 @@ gst-launch-1.0 udpsrc port=42074 caps="application/x-rtp, media=video, encoding-
     videorate ! \
     video/x-raw,framerate=30/1 ! \
     autovideosink sync=false & 
-gst-launch-1.0 udpsrc port=42069 caps="application/x-rtp, media=video, encoding-name=H265, payload=96" ! \
+gst-launch-1.0 udpsrc port=42069 address=239.0.0.1 caps="application/x-rtp, media=video, encoding-name=H265, payload=96" ! \
     rtpjitterbuffer latency=200 ! \
     rtpulpfecdec ! \
     rtph265depay ! \

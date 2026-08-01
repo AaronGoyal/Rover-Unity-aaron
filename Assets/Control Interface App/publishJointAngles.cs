@@ -106,14 +106,14 @@ public class publishJointAngles : MonoBehaviour
         allowArmControl = false;
 
 
-        JObject joy2_json = JObject.Parse(joy2MessageJson.text);
-        joy2_json["topic"] = "joy2";
-        joy2_json["data"]["axes"] = new JArray(new float[] {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f});
-        joy2_json["data"]["buttons"] = new JArray(new int[] {0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0});
-        string joy2_msg = joy2_json.ToString();
+        // JObject joy2_json = JObject.Parse(joy2MessageJson.text);
+        // joy2_json["topic"] = "joy2";
+        // joy2_json["data"]["axes"] = new JArray(new float[] {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f});
+        // joy2_json["data"]["buttons"] = new JArray(new int[] {0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0});
+        // string joy2_msg = joy2_json.ToString();
 
-        UdpController.inst.PublishMessage(joy2_msg);
-        yield return new WaitForSeconds(0.15f);
+        // UdpController.inst.PublishMessage(joy2_msg);
+        // yield return new WaitForSeconds(0.15f);
 
         JObject floatArrMessage = JObject.Parse(floatArrMessageJson.text);
         floatArrMessage["topic"] = "set_joint_angles";
@@ -123,9 +123,9 @@ public class publishJointAngles : MonoBehaviour
         UdpController.inst.PublishMessage(msg);
 
         yield return new WaitForSeconds(7f);
-        joy2_json["data"]["buttons"] = new JArray(new int[] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
-        joy2_msg = joy2_json.ToString();
-        UdpController.inst.PublishMessage(joy2_msg);
+        // joy2_json["data"]["buttons"] = new JArray(new int[] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
+        // joy2_msg = joy2_json.ToString();
+        // UdpController.inst.PublishMessage(joy2_msg);
         allowArmControl = true;
         currentCoroutine = null; // Clear coroutine reference
         robotArm.remove_vis();
