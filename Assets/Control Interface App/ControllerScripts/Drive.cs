@@ -373,8 +373,8 @@ D-Pad:
             //More specifically, sending a 0 joint velocity for every joint after switching controllers and moving causes 
             //the arm to rapidly swing back to the pose the original controller put it in.
             float[] axes = new float[] {
-                leftJoy.x*armSpeedSlider.value , leftJoy.y*armSpeedSlider.value , triggerWest*armSpeedSlider.value ,
-                rightJoy.x*armSpeedSlider.value , rightJoy.y*armSpeedSlider.value , triggerEast*armSpeedSlider.value ,
+                -leftJoy.x*armSpeedSlider.value , leftJoy.y*armSpeedSlider.value , triggerWest*armSpeedSlider.value ,
+                -rightJoy.x*armSpeedSlider.value , rightJoy.y*armSpeedSlider.value , triggerEast*armSpeedSlider.value ,
                 ((int)dpadEast*armSpeedSlider.value  - (int)dpadWest*armSpeedSlider.value+0.0000000000001f) , ((int)dpadNorth*armSpeedSlider.value  - (int)dpadSouth*armSpeedSlider.value) 
             };
 
