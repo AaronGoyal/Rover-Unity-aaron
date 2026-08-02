@@ -23,6 +23,13 @@ public class publishJointAngles : MonoBehaviour
     List<float> preset_pose_4 = new List<float> { 0.0382f, -0.9648478f, -2.1777784f,-0.01376f, 1.557087150f, 0.016154f };
     List<float> preset_pose_5 = new List<float> { 0.0382f, -0.9648478f, -2.1777784f, -0.01376f,1.557087150f, -3.1415926f };
 
+    List<float> science_pose_0 = new List<float> { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+    List<float> science_pose_1 = new List<float> { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+    List<float> science_pose_2 = new List<float> { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+    List<float> science_pose_3 = new List<float> { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+    List<float> science_pose_4 = new List<float> { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+    List<float> science_pose_5 = new List<float> { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+
 
     void Awake()
     {
@@ -77,10 +84,46 @@ public class publishJointAngles : MonoBehaviour
         Debug.Log(currentCoroutine);
         Publish(preset_pose_4);
     }
-        public void publish_preset_pose_5()
+    public void publish_preset_pose_5()
     {
         Debug.Log(currentCoroutine);
         Publish(preset_pose_5);
+    }
+
+    public void publish_science_pose_0()
+    {
+        Debug.Log(currentCoroutine);
+        Publish(science_pose_0);
+    }
+
+    public void publish_science_pose_1()
+    {
+        Debug.Log(currentCoroutine);
+        Publish(science_pose_1);
+    }
+
+    public void publish_science_pose_2()
+    {
+        Debug.Log(currentCoroutine);
+        Publish(science_pose_2);
+    }
+
+    public void publish_science_pose_3()
+    {
+        Debug.Log(currentCoroutine);
+        Publish(science_pose_3);
+    }
+
+    public void publish_science_pose_4()
+    {
+        Debug.Log(currentCoroutine);
+        Publish(science_pose_4);
+    }
+
+    public void publish_science_pose_5()
+    {
+        Debug.Log(currentCoroutine);
+        Publish(science_pose_5);
     }
 
     public void publish_custom_pose(List<float> customPose)
