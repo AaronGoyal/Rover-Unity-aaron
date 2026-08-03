@@ -28,8 +28,6 @@ public class PanoramaCapture : MonoBehaviour
     public float gimbalMoveDuration = 0.25f;
     [Tooltip("How long to wait after the camera settles before saving the frame.")]
     public float captureDelay = 0.1f;
-    [Tooltip("Normalized gimbal yaw speed used by the existing drive controller mapping.")]
-    public float gimbalSpeedScale = 0.3f;
     [Tooltip("Name used for the stitched panorama output.")]
     public string panoramaName = "panorama";
     [Tooltip("Output image extension used when saving frame images.")]
