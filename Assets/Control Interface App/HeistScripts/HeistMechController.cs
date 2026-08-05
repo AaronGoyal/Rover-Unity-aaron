@@ -61,6 +61,11 @@ public class HeistMechController : MonoBehaviour
             HeistServiceCall(MechanismCommand.SERVO_HOME);
     }
 
+    public void ToggleSolenoid()
+    {
+        HeistServiceCall(MechanismCommand.TOGGLE_SOLENOID);
+    }
+
     private void Awake()
     {
         statusText = statusTextObject?.GetComponent<TextMeshProUGUI>();
