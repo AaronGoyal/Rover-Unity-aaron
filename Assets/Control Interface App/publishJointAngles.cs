@@ -23,8 +23,8 @@ public class publishJointAngles : MonoBehaviour
     List<float> preset_pose_4 = new List<float> { 0.0382f, -0.9648478f, -2.1777784f,-0.01376f, 1.557087150f, 0.016154f };
     List<float> preset_pose_5 = new List<float> { 0.0382f, -0.9648478f, -2.1777784f, -0.01376f,1.557087150f, -3.1415926f };
 
-    List<float> science_pose_0 = new List<float> { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-    List<float> science_pose_1 = new List<float> { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+    List<float> science_pose_0 = new List<float> { -1.5708f, 0.97738f, 2.44346f, -0.17453f, 0.0f, 0.0f };
+    List<float> science_pose_1 = new List<float> { 1.5708f, 0.92502f, -1.8326f, 0.40143f, 1.5708f, 0.0f };
     List<float> science_pose_2 = new List<float> { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
     List<float> science_pose_3 = new List<float> { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
     List<float> science_pose_4 = new List<float> { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
